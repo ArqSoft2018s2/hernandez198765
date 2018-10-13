@@ -1,16 +1,15 @@
 const axios = require('axios');
-
-//gateway 8002
-//network 8003
-//transmitter 8004
+const apiConstants = require('../helpers/ApiConstants');
 
 const appRouter = app => {
-  let paymentResponse = '';
+  let paymentResponse = `Commerce starts communication`;
 
   const communicateWithTransmitter = async (req, res) => {
     try {
-      const transmitterResponse = await axios.get('');
-      paymentResponse += transmitterResponse.data;
+      const url = `${apiConstants.TRANSMITTER_API}/test`;
+      const transmitterResponse = await axios.get(url);
+      paymentResponse = `${paymentResponse}
+                         ${transmitterResponse.data}`;
       res.status(200).send(paymentResponse);
     } catch (error) {
       res.status(404).send(error.message);
@@ -19,8 +18,10 @@ const appRouter = app => {
 
   const communicateWithNetwork = async (req, res) => {
     try {
-      const networkResponse = await axios.get('');
-      paymentResponse += networkResponse.data;
+      const url = `${apiConstants.NETWORK_API}/test`;
+      const networkResponse = await axios.get(url);
+      paymentResponse = `${paymentResponse}
+                         ${networkResponse.data}`;
       communicateWithTransmitter(req, res);
     } catch (error) {
       res.status(404).send(error.message);
@@ -29,8 +30,10 @@ const appRouter = app => {
 
   const communicateWithGateway = async (req, res) => {
     try {
-      const gatewayResponse = await axios.get('');
-      paymentResponse += gatewayResponse.data;
+      const url = `${apiConstants.GATEWAY_API}/test`;
+      const gatewayResponse = await axios.get(url);
+      paymentResponse = `${paymentResponse}
+                         ${gatewayResponse.data}`;
       communicateWithNetwork(req, res);
     } catch (error) {
       res.status(404).send(error.message);
