@@ -1,31 +1,35 @@
-const axios = require('axios');
-const TransactionSchema = require('../models/TransactionSchema');
+import axios from 'axios';
+import ApiConstants from '../helpers/ApiConstants';
 
-const appRouter = app => {
-  app.get('/', (req, res) => {
-    res.status(200).send('Welcome to our restful API');
-  });
+const { PAY_YOU_NOW_API } = ApiConstants;
+class HttpService {
+  constructor() {
+    this.axios = axios.create({
+      baseURL: PAY_YOU_NOW_API,
+    });
+  }
 
-  const testingCommunication = async (req, res) => {
-    try {
-      const payYouNowResponse = await axios.get('http://localhost:8001/test');
-      const newTransaction = new TransactionSchema(req.body.transaction);
+  get(url, params = {}) {
+    return this.axios.get(url, {
+      params,
+    });
+  }
 
-      newTransaction.save((error, transaction) => {
-        if (error) {
-          res.status(500).send('Error');
-        } else {
-          res.send(200).send(transaction);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  post(url, body) {
+    return this.axios.post(url, body);
+  }
 
-  app.post('/probando', (req, res) => {
-    testingCommunication(req, res);
-  });
-};
+  put(url, body) {
+    return this.axios.put(url, body);
+  }
 
-module.exports = appRouter;
+  patch(url, body) {
+    return this.axios.patch(url, body);
+  }
+
+  delete(url) {
+    return this.axios.delete(url);
+  }
+}
+
+export default new HttpService();

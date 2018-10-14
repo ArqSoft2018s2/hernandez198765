@@ -45,7 +45,7 @@ const appRouter = app => {
     communicateWithGateway(req, res);
   };
 
-  app.get('/test', (req, res) => {
+  app.post('/Transaction', (req, res) => {
     makeCommunications(req, res);
   });
 };
