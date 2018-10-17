@@ -6,7 +6,7 @@ const appRouter = app => {
     res.status(200).send('Welcome to our restful API');
   });
 
-  app.post('/probando', (req, res) => {
+  app.post('/Transaction', (req, res) => {
     const { transaction } = req.body;
     TransactionController.sendTransaction(transaction)
       .then(() => {

@@ -27,7 +27,8 @@ const TransactionSchema = new mongoose.Schema({
   product: {
     amount: String,
     name: String,
-    category: Array,
+    category: String,
+    gateway: String,
   },
 });
 TransactionSchema.loadClass(Transaction);
