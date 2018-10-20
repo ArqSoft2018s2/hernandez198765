@@ -1,13 +1,18 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const routes = require('./src/networking/HttpService');
+import express from 'express';
+import bodyParser from 'body-parser';
+import DatabaseManager from './src/managers/DatabaseManager';
+import routes from './src/routes/routes';
 
+// Express Configuration
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 routes(app);
 
-const server = app.listen(3000, () => {
-  console.log('app running on port.', server.address().port);
-});
+const setupServer = () => {
+  const server = app.listen(3000, () => {
+    console.log('app running on port.', server.address().port);
+  });
+};
+
+DatabaseManager.connect().then(() => setupServer());

@@ -1,22 +1,35 @@
-const axios = require('axios');
+import axios from 'axios';
+import ApiConstants from '../helpers/ApiConstants';
 
-const appRouter = app => {
-  app.get('/', (req, res) => {
-    res.status(200).send('Welcome to our restful API');
-  });
+const { PAY_YOU_NOW_API } = ApiConstants;
+class HttpService {
+  constructor() {
+    this.axios = axios.create({
+      baseURL: PAY_YOU_NOW_API,
+    });
+  }
 
-  const testingCommunication = async (req, res) => {
-    try {
-      const payYouNowResponse = await axios.get('http://localhost:8001/test');
-      res.status(200).send(payYouNowResponse.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  get(url, params = {}) {
+    return this.axios.get(url, {
+      params,
+    });
+  }
 
-  app.get('/probando', (req, res) => {
-    testingCommunication(req, res);
-  });
-};
+  post(url, body) {
+    return this.axios.post(url, body);
+  }
 
-module.exports = appRouter;
+  put(url, body) {
+    return this.axios.put(url, body);
+  }
+
+  patch(url, body) {
+    return this.axios.patch(url, body);
+  }
+
+  delete(url) {
+    return this.axios.delete(url);
+  }
+}
+
+export default new HttpService();
