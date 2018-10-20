@@ -27,7 +27,11 @@ class TransactionController {
       const transactionWithGateway = this.getGatewayFromCategory(
         newTransaction,
       );
-      return HttpService.post(this.BASE_API, transactionWithGateway);
+      const response = await HttpService.post(
+        this.BASE_API,
+        transactionWithGateway,
+      );
+      return response;
     } catch (error) {
       throw new Error(error);
     }

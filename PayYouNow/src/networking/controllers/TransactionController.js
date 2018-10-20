@@ -22,9 +22,9 @@ class TransactionController {
         req,
         res,
       );
-      const transactionResponse = `${gatewayResponse} 
-                                   ${networkResponse}
-                                   ${transmitterResponse}`;
+      const transactionResponse = `${JSON.stringify(gatewayResponse.data)} 
+                                   ${JSON.stringify(networkResponse.data)}
+                                   ${JSON.stringify(transmitterResponse.data)}`;
       res.status(200).send(transactionResponse);
     } catch (error) {
       res.status(400).send('Error');
