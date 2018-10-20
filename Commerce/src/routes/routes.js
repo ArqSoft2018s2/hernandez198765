@@ -14,7 +14,10 @@ const appRouter = app => {
           res.status(status).send(message),
         );
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error.message);
+        res.status(500).send(error.message);
+      });
   });
 };
 
