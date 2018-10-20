@@ -1,7 +1,35 @@
-const appRouter = app => {
-  app.get('/test', (req, res) => {
-    res.status(200).send('Communicate with Transmitter successful');
-  });
-};
+import axios from 'axios';
+import ApiConstants from '../helpers/ApiConstants';
 
-module.exports = appRouter;
+const { PAY_YOU_NOW_API } = ApiConstants;
+class HttpService {
+  constructor() {
+    this.axios = axios.create({
+      baseURL: PAY_YOU_NOW_API,
+    });
+  }
+
+  get(url, params = {}) {
+    return this.axios.get(url, {
+      params,
+    });
+  }
+
+  post(url, body) {
+    return this.axios.post(url, body);
+  }
+
+  put(url, body) {
+    return this.axios.put(url, body);
+  }
+
+  patch(url, body) {
+    return this.axios.patch(url, body);
+  }
+
+  delete(url) {
+    return this.axios.delete(url);
+  }
+}
+
+export default new HttpService();
