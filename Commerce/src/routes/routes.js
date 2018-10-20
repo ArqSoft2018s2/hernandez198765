@@ -11,10 +11,10 @@ const appRouter = app => {
     TransactionController.sendTransaction(transaction)
       .then(() => {
         DatabaseManager.sendNewTransaction(transaction, (status, message) =>
-          res.status(status).send(message),
+          res.status(status).send(`Transaction Number: ${message.id}`),
         );
       })
-      .catch(error => console.log(error));
+      .catch(error => res.status(500).send(error.message));
   });
 };
 

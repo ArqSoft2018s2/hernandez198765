@@ -1,4 +1,5 @@
 import HttpService from '../HttpService';
+import Gateways from '../../helpers/Gateways';
 
 class TransactionController {
   constructor() {
@@ -7,8 +8,34 @@ class TransactionController {
 
   getTransaction = (params = {}) => HttpService.get(this.BASE_API, params);
 
-  sendTransaction = newTransaction =>
-    HttpService.post(this.BASE_API, newTransaction);
+  getGatewayFromCategory = transaction => {
+    const {
+      product: { category },
+    } = transaction;
+    return { ...transaction, gateway: this.findGateway(category) };
+  };
+
+  findGateway = category => {
+    if (Gateways[category]) {
+      return Gateways[category];
+    }
+    throw new Error('We cant find a gateway to process this product');
+  };
+
+  sendTransaction = async newTransaction => {
+    try {
+      const transactionWithGateway = this.getGatewayFromCategory(
+        newTransaction,
+      );
+      const response = await HttpService.post(
+        this.BASE_API,
+        transactionWithGateway,
+      );
+      return response;
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
 
   deleteTransaction = uri => HttpService.delete(uri);
 
