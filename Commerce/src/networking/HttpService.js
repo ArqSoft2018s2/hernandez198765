@@ -1,11 +1,11 @@
 import axios from 'axios';
-import ApiConstants from '../helpers/ApiConstants';
+import dotenv from 'dotenv';
 
-const { PAY_YOU_NOW_API } = ApiConstants;
 class HttpService {
   constructor() {
+    dotenv.config();
     this.axios = axios.create({
-      baseURL: PAY_YOU_NOW_API,
+      baseURL: process.env.PAY_YOU_NOW_API,
     });
   }
 
