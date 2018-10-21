@@ -19,7 +19,7 @@ class TransactionController {
     if (Gateways[category]) {
       return Gateways[category];
     }
-    throw new Error('We cant find a gateway to process this product');
+    throw new Error('Error: We cant find a gateway to process this product');
   };
 
   sendTransaction = async newTransaction => {
@@ -33,7 +33,8 @@ class TransactionController {
       );
       return response;
     } catch (error) {
-      throw new Error(error);
+      const message = error.response ? error.response.data : error.message;
+      throw new Error(message);
     }
   };
 

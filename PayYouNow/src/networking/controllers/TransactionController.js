@@ -18,6 +18,7 @@ class TransactionController {
         req,
         res,
       );
+      console.log(networkResponse);
       const transmitterResponse = await TransmitterController.communicateWithTransmitter(
         req,
         res,
@@ -27,7 +28,7 @@ class TransactionController {
                                    ${JSON.stringify(transmitterResponse.data)}`;
       res.status(200).send(transactionResponse);
     } catch (error) {
-      res.status(400).send('Error');
+      res.status(500).send(error.response.data);
     }
   };
 }

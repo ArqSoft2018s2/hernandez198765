@@ -1,6 +1,16 @@
+import GatewayController from '../networking/controllers/GatewayController';
+
 const appRouter = app => {
-  app.get('/test', (req, res) => {
-    res.status(200).send('Communicate with gateway successful');
+  app.post('/Gateway', (req, res) => {
+    try {
+      const transaction = req.body;
+      const transactionWithCard = GatewayController.identifyNetwork(
+        transaction,
+      );
+      res.status(200).send(transactionWithCard);
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   });
 };
 
