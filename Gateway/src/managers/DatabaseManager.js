@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 // import TransactionSchema from '../models/TransactionSchema';
-
 class DatabaseManager {
   constructor() {
-    this.DB_CONNECTION = 'localhost:27017/commerce_db';
+    dotenv.config();
+    this.DB_CONNECTION = process.env.DATABASE_IP;
     mongoose.Promise = global.Promise;
   }
 
