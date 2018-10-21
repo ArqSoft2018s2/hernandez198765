@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-// import TransactionSchema from '../models/TransactionSchema';
+import CardDateTransactionsSchema from '../models/CardDateTransactionsSchema';
 
 class DatabaseManager {
   constructor() {
@@ -20,17 +20,26 @@ class DatabaseManager {
     }
   };
 
-  // sendNewTransaction = (transaction, callback) => {
-  //   const newTransaction = new TransactionSchema(transaction);
+  getQuantityOfTransactionsBetweenHours = number => {
+    CardDateTransactionsSchema.countDocuments(
+      { cardNumber: number },
+      (error, count) => (error ? console.log('Error') : count),
+    );
+  };
 
-  //   newTransaction.save((error, databaseResponse) => {
-  //     if (error) {
-  //       callback(500, 'Error');
-  //     } else {
-  //       callback(200, databaseResponse);
-  //     }
-  //   });
-  // };
+  sendCardDateTransaction = cardDateTransaction => {
+    const newCardDateTransaction = new CardDateTransactionsSchema(
+      cardDateTransaction,
+    );
+
+    newCardDateTransaction.save((error, databaseResponse) => {
+      if (error) {
+        console.log('Error');
+      } else {
+        console.log(databaseResponse);
+      }
+    });
+  };
 }
 
 export default new DatabaseManager();
