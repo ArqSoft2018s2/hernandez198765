@@ -3,7 +3,7 @@ import apiConstants from '../../helpers/ApiConstants';
 
 class TransmitterController {
   communicateWithTransmitter = async (req, res) => {
-    const url = `${apiConstants.NETWORK_API}/test`;
+    const url = `${apiConstants.TRANSMITTER_API}/test`;
     const transmitterResponse = await HttpService.get(url);
     return transmitterResponse;
   };

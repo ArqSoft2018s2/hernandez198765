@@ -6,24 +6,30 @@ import DatabaseManager from '../../managers/DatabaseManager';
 class NetworkController {
   constructor() {
     dotenv.config();
-    this.FRAUD_LIMIT = process.env.FRAUD_LIMIT;
+    this.FRAUD_LIMIT = JSON.parse(process.env.FRAUD_LIMIT);
     this.BASE_API = '/Network';
   }
 
-  fraudControl = transaction => {
+  fraudControl = async transaction => {
     const {
       card: { number },
     } = transaction;
-    const today = moment.unix();
+    const today = moment().unix();
     const threeDaysAgo = moment()
       .add(-3, 'days')
       .unix();
-    DatabaseManager.getQuantityOfTransactionsBetweenHours(
+    const quantity = await DatabaseManager.getQuantityOfTransactionsBetweenHours(
       number,
-      collection => {
-        console.log(collection);
-      },
+      today,
+      threeDaysAgo,
     );
+
+    if (quantity + 1 > this.FRAUD_LIMIT) {
+      throw new Error('Error: fradulent transaction');
+    } else {
+      const cardDateTransaction = { cardNumber: number, date: today };
+      DatabaseManager.sendCardDateTransaction(cardDateTransaction);
+    }
   };
 }
 

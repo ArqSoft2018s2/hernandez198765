@@ -20,11 +20,27 @@ class DatabaseManager {
     }
   };
 
-  getQuantityOfTransactionsBetweenHours = number => {
-    CardDateTransactionsSchema.countDocuments(
+  getQuantityOfTransactionsBetweenHours = async (
+    number,
+    today,
+    threeDaysAgo,
+  ) => {
+    let response;
+    await CardDateTransactionsSchema.find(
       { cardNumber: number },
-      (error, count) => (error ? console.log('Error') : count),
+      (error, cardDateTransactions) => {
+        if (error) {
+          throw new Error(error);
+        } else {
+          response = cardDateTransactions.filter(
+            cardDateTransaction =>
+              cardDateTransaction.date < today &&
+              cardDateTransaction.date > threeDaysAgo,
+          ).length;
+        }
+      },
     );
+    return response;
   };
 
   sendCardDateTransaction = cardDateTransaction => {
@@ -34,9 +50,7 @@ class DatabaseManager {
 
     newCardDateTransaction.save((error, databaseResponse) => {
       if (error) {
-        console.log('Error');
-      } else {
-        console.log(databaseResponse);
+        throw new Error('Error');
       }
     });
   };
