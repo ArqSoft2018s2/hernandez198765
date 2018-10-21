@@ -1,16 +1,18 @@
 import mongoose from 'mongoose';
-// import TransactionSchema from '../models/TransactionSchema';
+import dotenv from 'dotenv';
+import CardDateTransactionsSchema from '../models/CardDateTransactionsSchema';
 
 class DatabaseManager {
   constructor() {
-    this.DB_CONNECTION = 'localhost:27017/network_db';
+    dotenv.config();
+    this.DB_CONNECTION = process.env.DATABASE_IP;
     mongoose.Promise = global.Promise;
   }
 
   connect = async () => {
     try {
       await mongoose.connect(
-        'mongodb://localhost:27017/netwo_db',
+        `mongodb://${this.DB_CONNECTION}`,
         { useNewUrlParser: true },
       );
     } catch (error) {
@@ -18,17 +20,40 @@ class DatabaseManager {
     }
   };
 
-  // sendNewTransaction = (transaction, callback) => {
-  //   const newTransaction = new TransactionSchema(transaction);
+  getQuantityOfTransactionsBetweenHours = async (
+    number,
+    today,
+    threeDaysAgo,
+  ) => {
+    let response;
+    await CardDateTransactionsSchema.find(
+      { cardNumber: number },
+      (error, cardDateTransactions) => {
+        if (error) {
+          throw new Error(error);
+        } else {
+          response = cardDateTransactions.filter(
+            cardDateTransaction =>
+              cardDateTransaction.date < today &&
+              cardDateTransaction.date > threeDaysAgo,
+          ).length;
+        }
+      },
+    );
+    return response;
+  };
 
-  //   newTransaction.save((error, databaseResponse) => {
-  //     if (error) {
-  //       callback(500, 'Error');
-  //     } else {
-  //       callback(200, databaseResponse);
-  //     }
-  //   });
-  // };
+  sendCardDateTransaction = cardDateTransaction => {
+    const newCardDateTransaction = new CardDateTransactionsSchema(
+      cardDateTransaction,
+    );
+
+    newCardDateTransaction.save((error, databaseResponse) => {
+      if (error) {
+        throw new Error('Error');
+      }
+    });
+  };
 }
 
 export default new DatabaseManager();

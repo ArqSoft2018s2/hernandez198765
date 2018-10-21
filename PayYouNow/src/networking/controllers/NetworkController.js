@@ -3,8 +3,9 @@ import apiConstants from '../../helpers/ApiConstants';
 
 class NetworkController {
   communicateWithNetwork = async (req, res) => {
-    const url = `${apiConstants.NETWORK_API}/test`;
-    const networkResponse = await HttpService.get(url);
+    const url = `${apiConstants.NETWORK_API}/Network`;
+    const transaction = req.body;
+    const networkResponse = await HttpService.post(url, transaction);
     return networkResponse;
   };
 }

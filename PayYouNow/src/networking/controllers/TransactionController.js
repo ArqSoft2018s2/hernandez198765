@@ -18,7 +18,6 @@ class TransactionController {
         req,
         res,
       );
-      console.log(networkResponse);
       const transmitterResponse = await TransmitterController.communicateWithTransmitter(
         req,
         res,
