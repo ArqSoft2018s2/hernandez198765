@@ -4,15 +4,16 @@ import apiConstants from '../../helpers/ApiConstants';
 class GatewayController {
   communicateWithGateway = async (req, res) => {
     const gatewayToCommunicate = this.obtainGateway(req.body);
-    const url = `${apiConstants.GATEWAY_API}/test`;
-    const gatewayResponse = await HttpService.get(url);
+    console.log(gatewayToCommunicate);
+    const url = `${apiConstants.GATEWAY_API}/Gateway`;
+    const gatewayResponse = await HttpService.post(url, req.body);
     return gatewayResponse;
   };
 
   obtainGateway = transaction => {
-    if (!transaction.product.gateway) return 'No gateway specified';
+    if (!transaction.gateway) return 'No gateway specified';
     //TODO: go to database and get gateway route, etc..
-    return transaction.product.gateway;
+    return transaction.gateway;
   };
 }
 
