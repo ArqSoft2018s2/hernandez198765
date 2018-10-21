@@ -20,7 +20,7 @@ class NetworkController {
       .unix();
     DatabaseManager.getQuantityOfTransactionsBetweenHours(
       number,
-      (status, collection) => {
+      collection => {
         console.log(collection);
       },
     );
