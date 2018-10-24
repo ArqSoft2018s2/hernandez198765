@@ -27,6 +27,18 @@ class DatabaseManager {
       }
     });
   };
+
+  validateCardIsEmitted = async card => {
+    const response = await CardSchema.findOne({
+      number: card.number,
+      holderName: card.holderName,
+      securityCode: card.securityCode,
+    }).lean();
+    if (!response) {
+      throw new Error('Card not emitted by Transmitter');
+    }
+    return response;
+  };
 }
 
 export default new DatabaseManager();
