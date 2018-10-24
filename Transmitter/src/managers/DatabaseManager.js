@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-// import TransactionSchema from '../models/TransactionSchema';
+import CardSchema from '../models/CardSchema';
 
 class DatabaseManager {
   constructor() {
@@ -18,17 +18,15 @@ class DatabaseManager {
     }
   };
 
-  // sendNewTransaction = (transaction, callback) => {
-  //   const newTransaction = new TransactionSchema(transaction);
+  addNewCard = newCard => {
+    const newTransaction = new CardSchema(newCard);
 
-  //   newTransaction.save((error, databaseResponse) => {
-  //     if (error) {
-  //       callback(500, 'Error');
-  //     } else {
-  //       callback(200, databaseResponse);
-  //     }
-  //   });
-  // };
+    newTransaction.save((error, databaseResponse) => {
+      if (error) {
+        throw new Error('Error in the database');
+      }
+    });
+  };
 }
 
 export default new DatabaseManager();
