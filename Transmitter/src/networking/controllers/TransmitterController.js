@@ -18,7 +18,6 @@ class TransmitterController {
       const response = await DatabaseManager.validateCardIsEmitted(card);
       return response;
     } catch (error) {
-      console.log('ACA');
       throw new Error(error);
     }
   };

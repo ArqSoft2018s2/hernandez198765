@@ -17,7 +17,6 @@ const appRouter = app => {
       const response = await TransmitterController.validateCard(card);
       res.status(200).send(response);
     } catch (error) {
-      console.log('LLEGUE');
       res.status(500).send(error.message);
     }
   });
