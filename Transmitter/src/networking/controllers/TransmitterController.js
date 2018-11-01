@@ -1,6 +1,7 @@
 import moment from 'moment';
 import DatabaseManager from '../../managers/DatabaseManager';
 import cardStatus from '../../helpers/cardStatus';
+import language from '../../localization/en';
 
 class TransmitterController {
   constructor() {
@@ -23,12 +24,12 @@ class TransmitterController {
     this.validateLuhn(transactionCard.number);
     this.validateExpirationDate(transactionCard.expirationDate);
     this.validateCardStatus(response.status);
-    return 'Valid Credit Card';
+    return language.VALID_CARD;
   };
 
   validateCardStatus = status => {
     if (status !== cardStatus.ENABLED) {
-      throw new Error(`Error: your card status is ${status}`);
+      throw new Error(`${language.CARD_STATUS_ERROR} ${status}`);
     }
   };
 
@@ -41,21 +42,19 @@ class TransmitterController {
       cardYear > actualYear ||
       (cardYear === actualYear && cardMonth > actualMonth)
     ) {
-      throw new Error(
-        'Error: Past due credit card, request a new one with your provider',
-      );
+      throw new Error(language.EXPIRATION_DATE_ERROR);
     }
   };
 
   validateAmount = (card, amount) => {
     if (card.balance < amount) {
-      throw new Error('Error: Insuficient founds');
+      throw new Error(language.INSUFICIENT_FOUNDS);
     }
   };
 
   validateLuhn = cardNumber => {
     if (!this.luhnValidation(cardNumber)) {
-      throw new Error('Error: Invalid credit card');
+      throw new Error(language.INVALID_CREDIT_CARD);
     }
   };
 
