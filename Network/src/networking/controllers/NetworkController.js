@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import moment from 'moment';
 import DatabaseManager from '../../managers/DatabaseManager';
-// import HttpService from '../HttpService';
 
 class NetworkController {
   constructor() {
