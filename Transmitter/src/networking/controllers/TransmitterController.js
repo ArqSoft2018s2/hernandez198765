@@ -1,4 +1,6 @@
+import moment from 'moment';
 import DatabaseManager from '../../managers/DatabaseManager';
+import cardStatus from '../../helpers/cardStatus';
 
 class TransmitterController {
   constructor() {
@@ -13,38 +15,71 @@ class TransmitterController {
     }
   };
 
-  validateCard = async card => {
-    try {
-      const response = await DatabaseManager.validateCardIsEmitted(card);
-      return response;
-    } catch (error) {
-      throw new Error(error);
+  validateCard = async transactionCard => {
+    const response = await DatabaseManager.validateCardIsEmitted(
+      transactionCard,
+    );
+    this.validateAmount(response, transactionCard.amount);
+    this.validateLuhn(transactionCard.number);
+    this.validateExpirationDate(transactionCard.expirationDate);
+    this.validateCardStatus(response.status);
+    return 'Valid Credit Card';
+  };
+
+  validateCardStatus = status => {
+    if (status !== cardStatus.ENABLED) {
+      throw new Error(`Error: your card status is ${status}`);
     }
   };
 
-  luhn = value => {
-    let valueToWork = value;
-    // accept only digits, dashes or spaces
+  validateExpirationDate = expirationDate => {
+    const cardMonth = expirationDate.split('/')[0];
+    const cardYear = expirationDate.split('/')[1];
+    const actualMonth = moment().month();
+    const actualYear = moment().year();
+    if (
+      cardYear > actualYear ||
+      (cardYear === actualYear && cardMonth > actualMonth)
+    ) {
+      throw new Error(
+        'Error: Past due credit card, request a new one with your provider',
+      );
+    }
+  };
+
+  validateAmount = (card, amount) => {
+    if (card.balance < amount) {
+      throw new Error('Error: Insuficient founds');
+    }
+  };
+
+  validateLuhn = cardNumber => {
+    if (!this.luhnValidation(cardNumber)) {
+      throw new Error('Error: Invalid credit card');
+    }
+  };
+
+  luhnValidation = value => {
+    let valueToWork = `${value}`;
     if (/[^0-9-\s]+/.test(valueToWork)) return false;
-    // The Luhn Algorithm. It's so pretty.
     let nCheck = 0;
     let nDigit = 0;
     let bEven = false;
     valueToWork = valueToWork.replace(/\D/g, '');
 
-    for (let n = valueToWork.length - 1; n >= 0; n - 1) {
-      let cDigit = valueToWork.charAt(n);
+    for (let n = valueToWork.length - 1; n >= 0; n -= 1) {
+      const cDigit = valueToWork.charAt(n);
       nDigit = parseInt(cDigit, 10);
 
       if (bEven) {
-        if ((nDigit *= 2) > 9) nDigit -= 9;
+        nDigit *= 2;
+        if (nDigit > 9) nDigit -= 9;
       }
 
       nCheck += nDigit;
       bEven = !bEven;
     }
-
-    return nCheck % 10 === 0;
+    return nCheck % 10 !== 0;
   };
 }
 
