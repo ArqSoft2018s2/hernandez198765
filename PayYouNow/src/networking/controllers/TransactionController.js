@@ -26,7 +26,7 @@ class TransactionController {
         res,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse.data);
+      await this.rollbackGateway(gatewayResponse);
       throw new Error(error);
     }
 
@@ -36,8 +36,8 @@ class TransactionController {
         res,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse.data);
-      await this.rollbackNetwork(networkResponse.data);
+      await this.rollbackGateway(gatewayResponse);
+      await this.rollbackNetwork(networkResponse);
       throw new Error(error);
     }
 
@@ -48,9 +48,9 @@ class TransactionController {
         networkResponse,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse.data);
-      await this.rollbackNetwork(networkResponse.data);
-      await this.rollbackTransmitter(transactionResponse.data);
+      await this.rollbackGateway(gatewayResponse);
+      await this.rollbackNetwork(networkResponse);
+      await this.rollbackTransmitter(transactionResponse);
       throw new Error(error);
     }
 
