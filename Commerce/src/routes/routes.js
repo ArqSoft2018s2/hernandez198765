@@ -1,4 +1,4 @@
-import TransactionController from '../networking/controllers/CommerceController';
+import CommerceController from '../networking/controllers/CommerceController';
 
 const appRouter = app => {
   app.get('/', (req, res) => {
@@ -8,7 +8,7 @@ const appRouter = app => {
   app.post('/Transaction', async (req, res) => {
     try {
       const { transaction } = req.body;
-      const response = await TransactionController.sendTransaction(transaction);
+      const response = await CommerceController.sendTransaction(transaction);
       res.status(200).send(
         `Transaction successful 
         Transaction Identifier: ${response.data.id}`,
@@ -24,7 +24,7 @@ const appRouter = app => {
   app.delete('/Transaction/:transactionId', async (req, res) => {
     try {
       const { transactionId } = req.params;
-      await TransactionController.deleteTransaction(transactionId);
+      await CommerceController.deleteTransaction(transactionId);
       res.status(200).send('Your purchase was returned succesfully');
     } catch (error) {
       const errorResponse = error.response
