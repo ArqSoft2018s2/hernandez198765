@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-// import TransactionSchema from '../models/TransactionSchema';
+import TransactionSchema from '../models/transactionSchema';
 
 class DatabaseManager {
   constructor() {
@@ -16,6 +16,16 @@ class DatabaseManager {
     } catch (error) {
       console.log('Cannot connect with Database');
     }
+  };
+
+  saveTransaction = async transaction => {
+    const newTransaction = new TransactionSchema(transaction);
+
+    const response = await newTransaction.save();
+    if (!response) {
+      throw new Error('Error papi');
+    }
+    return response;
   };
 }
 

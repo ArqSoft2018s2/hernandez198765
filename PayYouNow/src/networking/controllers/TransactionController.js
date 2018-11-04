@@ -32,30 +32,28 @@ class TransactionController {
     }
 
     try {
-      console.log('ACA');
       transmitterResponse = await TransmitterController.communicateWithTransmitter(
         req,
         res,
       );
     } catch (error) {
-      console.log('catch');
       await this.rollbackGateway(gatewayResponse);
       await this.rollbackNetwork(networkResponse);
       throw new Error(error);
     }
 
-    // try {
-    //   transactionResponse = await DatabaseManager.saveTransaction(
-    //     gatewayResponse,
-    //     transmitterResponse,
-    //     networkResponse,
-    //   );
-    // } catch (error) {
-    //   await this.rollbackGateway(gatewayResponse);
-    //   await this.rollbackNetwork(networkResponse);
-    //   await this.rollbackTransmitter(transactionResponse);
-    //   throw new Error(error);
-    // }
+    try {
+      transactionResponse = await DatabaseManager.saveTransaction(
+        gatewayResponse,
+        transmitterResponse,
+        networkResponse,
+      );
+    } catch (error) {
+      await this.rollbackGateway(gatewayResponse);
+      await this.rollbackNetwork(networkResponse);
+      await this.rollbackTransmitter(transactionResponse);
+      throw new Error(error);
+    }
 
     return transactionResponse;
   };
