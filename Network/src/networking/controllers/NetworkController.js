@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import moment from 'moment';
 import DatabaseManager from '../../managers/DatabaseManager';
+import serializer from '../../helpers/serializer';
+import deserializer from '../../helpers/deserializer';
 
 class NetworkController {
   constructor() {
@@ -26,8 +28,11 @@ class NetworkController {
     if (quantity + 1 > this.FRAUD_LIMIT) {
       throw new Error('Error: fradulent transaction');
     } else {
-      const cardDateTransaction = { cardNumber: number, date: today };
-      DatabaseManager.sendCardDateTransaction(cardDateTransaction);
+      const cardDateTransaction = serializer(number, today);
+      const response = await DatabaseManager.sendCardDateTransaction(
+        cardDateTransaction,
+      );
+      return deserializer(response);
     }
   };
 }

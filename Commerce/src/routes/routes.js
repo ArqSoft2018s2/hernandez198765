@@ -1,5 +1,4 @@
 import TransactionController from '../networking/controllers/CommerceController';
-import DatabaseManager from '../managers/DatabaseManager';
 
 const appRouter = app => {
   app.get('/', (req, res) => {
@@ -9,12 +8,17 @@ const appRouter = app => {
   app.post('/Transaction', async (req, res) => {
     try {
       const { transaction } = req.body;
-      await TransactionController.sendTransaction(transaction);
-      DatabaseManager.sendNewTransaction(transaction, (status, message) =>
-        res.status(status).send(`Transaction Number: ${message.id}`),
+      const response = await TransactionController.sendTransaction(transaction);
+      console.log(response);
+      res.status(200).send(
+        `Transaction successful 
+        Transaction Identifier: ${response.data.id}`,
       );
     } catch (error) {
-      res.status(500).send(error.message);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
     }
   });
 };

@@ -1,14 +1,16 @@
 import GatewayController from '../networking/controllers/GatewayController';
 
 const appRouter = app => {
-  app.post('/Gateway', (req, res) => {
+  app.post('/Gateway', async (req, res) => {
     try {
       const transaction = req.body;
-      const transactionWithCard = GatewayController.identifyNetwork(
+      const transactionWithCard = await GatewayController.identifyNetwork(
         transaction,
       );
+      console.log('RESPONDIENDO');
       res.status(200).send(transactionWithCard);
     } catch (error) {
+      console.log(error.message);
       res.status(500).send(error.message);
     }
   });

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import TransactionSchema from '../models/TransactionSchema';
+// import TransactionSchema from '../models/TransactionSchema';
 
 class DatabaseManager {
   constructor() {
@@ -20,17 +20,17 @@ class DatabaseManager {
     }
   };
 
-  sendNewTransaction = (transaction, callback) => {
-    const newTransaction = new TransactionSchema(transaction);
+  // sendNewTransaction = (transaction, callback) => {
+  //   const newTransaction = new TransactionSchema(transaction);
 
-    newTransaction.save((error, databaseResponse) => {
-      if (error) {
-        callback(500, 'Error');
-      } else {
-        callback(200, databaseResponse);
-      }
-    });
-  };
+  //   newTransaction.save((error, databaseResponse) => {
+  //     if (error) {
+  //       callback(500, 'Error');
+  //     } else {
+  //       callback(200, databaseResponse);
+  //     }
+  //   });
+  // };
 }
 
 export default new DatabaseManager();

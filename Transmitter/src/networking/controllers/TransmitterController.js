@@ -16,6 +16,14 @@ class TransmitterController {
     }
   };
 
+  updateCardBalance = async card => {
+    try {
+      await DatabaseManager.updateCardBalance(card);
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   validateCard = async transactionCard => {
     const response = await DatabaseManager.validateCardIsEmitted(
       transactionCard,
@@ -24,7 +32,11 @@ class TransmitterController {
     this.validateLuhn(transactionCard.number);
     this.validateExpirationDate(transactionCard.expirationDate);
     this.validateCardStatus(response.status);
-    return language.VALID_CARD;
+    return {
+      number: transactionCard.number,
+      data: language.VALID_CARD,
+      amount: transactionCard.amount,
+    };
   };
 
   validateCardStatus = status => {
@@ -78,7 +90,7 @@ class TransmitterController {
       nCheck += nDigit;
       bEven = !bEven;
     }
-    return nCheck % 10 !== 0;
+    return nCheck % 10 === 0;
   };
 }
 

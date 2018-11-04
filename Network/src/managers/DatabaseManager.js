@@ -43,16 +43,12 @@ class DatabaseManager {
     return response;
   };
 
-  sendCardDateTransaction = cardDateTransaction => {
+  sendCardDateTransaction = async cardDateTransaction => {
     const newCardDateTransaction = new CardDateTransactionsSchema(
       cardDateTransaction,
     );
-
-    newCardDateTransaction.save((error, databaseResponse) => {
-      if (error) {
-        throw new Error('Error');
-      }
-    });
+    const response = await newCardDateTransaction.save();
+    return response;
   };
 }
 

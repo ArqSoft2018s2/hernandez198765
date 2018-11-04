@@ -21,7 +21,7 @@ class DatabaseManager {
   addNewCard = newCard => {
     const newTransaction = new CardSchema(newCard);
 
-    newTransaction.save((error, databaseResponse) => {
+    newTransaction.save(error => {
       if (error) {
         throw new Error('Error in the database');
       }
@@ -38,6 +38,18 @@ class DatabaseManager {
       throw new Error('Card not emitted by Transmitter');
     }
     return response;
+  };
+
+  updateCardBalance = async card => {
+    await CardSchema.update(
+      { number: card.number },
+      { $inc: { balance: -card.amount } },
+      error => {
+        if (error) {
+          throw new Error('We cant update card balance');
+        }
+      },
+    );
   };
 }
 

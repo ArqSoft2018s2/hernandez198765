@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
-// import TransactionSchema from '../models/TransactionSchema';
+import TransactionSchema from '../models/transactionSchema';
+import serializer from '../helpers/serializer';
+import deserializer from '../helpers/deserializer';
 
 class DatabaseManager {
   constructor() {
@@ -16,6 +18,13 @@ class DatabaseManager {
     } catch (error) {
       console.log('Cannot connect with Database');
     }
+  };
+
+  saveTransaction = async (gateway, network, transmitter) => {
+    const parsedTransaction = serializer(gateway, network, transmitter);
+    const newTransaction = new TransactionSchema(parsedTransaction);
+    const response = await newTransaction.save();
+    return deserializer(response);
   };
 }
 

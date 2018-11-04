@@ -11,11 +11,12 @@ const appRouter = app => {
     }
   });
 
-  app.post('/Transaction', async (req, res) => {
+  app.post('/Transmitter', async (req, res) => {
     try {
       const card = req.body;
-      const response = await TransmitterController.validateCard(card);
-      res.status(200).send(response);
+      const validationResponse = await TransmitterController.validateCard(card);
+      await TransmitterController.updateCardBalance(card);
+      res.status(200).send(validationResponse);
     } catch (error) {
       res.status(500).send(error.message);
     }

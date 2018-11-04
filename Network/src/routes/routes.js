@@ -4,8 +4,8 @@ const appRouter = app => {
   app.post('/Network', async (req, res) => {
     try {
       const transaction = req.body;
-      await NetworkController.fraudControl(transaction);
-      res.status(200).send('Aprobada');
+      const response = await NetworkController.fraudControl(transaction);
+      res.status(200).send({ ...response, aprobada: 'aprobada' });
     } catch (error) {
       res.status(500).send(error.message);
     }

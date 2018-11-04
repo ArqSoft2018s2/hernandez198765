@@ -1,5 +1,5 @@
-// import HttpService from '../HttpService';
 import CreditCards from '../../helpers/CreditCards';
+import DatabaseManager from '../../managers/DatabaseManager';
 
 class GatewayController {
   constructor() {
@@ -25,11 +25,16 @@ class GatewayController {
     throw new Error('Invalid Credit Card');
   };
 
-  identifyNetwork = transaction => {
+  identifyNetwork = async transaction => {
     try {
+      const network = this.getNetworkFromCreditCard(transaction);
+      const databaseIDTransaction = await DatabaseManager.saveTransaction(
+        transaction,
+      );
+      console.log('GATEWAY ACA');
       return {
-        ...transaction,
-        network: this.getNetworkFromCreditCard(transaction),
+        ...databaseIDTransaction,
+        network,
       };
     } catch (error) {
       throw new Error(error);
