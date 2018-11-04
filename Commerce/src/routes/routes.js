@@ -21,10 +21,10 @@ const appRouter = app => {
     }
   });
 
-  app.delete('/Transaction/:transactionId', async (req, res) => {
+  app.delete('/Transaction/:id', async (req, res) => {
     try {
-      const { transactionId } = req.params;
-      await CommerceController.deleteTransaction(transactionId);
+      const { id } = req.params;
+      await CommerceController.deleteTransaction(id);
       res.status(200).send('Your purchase was returned succesfully');
     } catch (error) {
       const errorResponse = error.response

@@ -21,9 +21,9 @@ const appRouter = app => {
     }
   });
 
-  app.delete('/Transaction', async (req, res) => {
+  app.delete('/Transaction/:transactionId', async (req, res) => {
     try {
-      const transactionId = req.params;
+      const { transactionId } = req.params;
       const response = await TransactionController.returnPurchase(
         transactionId,
       );

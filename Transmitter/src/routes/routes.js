@@ -21,6 +21,11 @@ const appRouter = app => {
       res.status(500).send(error.message);
     }
   });
+
+  app.delete('/Transmitter/:transactionId/:amount', async (req, res) => {
+    console.log(req.params);
+    res.status(200).send('HOLA');
+  });
 };
 
 export default appRouter;

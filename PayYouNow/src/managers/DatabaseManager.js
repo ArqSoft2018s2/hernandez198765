@@ -20,11 +20,19 @@ class DatabaseManager {
     }
   };
 
-  saveTransaction = async (gateway, network, transmitter) => {
-    const parsedTransaction = serializer(gateway, network, transmitter);
+  saveTransaction = async (gateway, network, transmitter, amount) => {
+    const parsedTransaction = serializer(gateway, network, transmitter, amount);
     const newTransaction = new TransactionSchema(parsedTransaction);
     const response = await newTransaction.save();
     return deserializer(response);
+  };
+
+  getTransactionFromDatabase = async transactionId => {
+    const response = await TransactionSchema.findById(transactionId).lean();
+    if (!response) {
+      throw new Error('Transaction doesnt exists');
+    }
+    return response;
   };
 }
 
