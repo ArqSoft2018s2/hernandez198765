@@ -27,7 +27,10 @@ class NetworkController {
       throw new Error('Error: fradulent transaction');
     } else {
       const cardDateTransaction = { cardNumber: number, date: today };
-      DatabaseManager.sendCardDateTransaction(cardDateTransaction);
+      const response = await DatabaseManager.sendCardDateTransaction(
+        cardDateTransaction,
+      );
+      return response;
     }
   };
 }

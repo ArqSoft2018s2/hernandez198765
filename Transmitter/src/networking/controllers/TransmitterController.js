@@ -16,6 +16,14 @@ class TransmitterController {
     }
   };
 
+  updateCardBalance = async card => {
+    try {
+      await DatabaseManager.updateCardBalance(card);
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   validateCard = async transactionCard => {
     const response = await DatabaseManager.validateCardIsEmitted(
       transactionCard,

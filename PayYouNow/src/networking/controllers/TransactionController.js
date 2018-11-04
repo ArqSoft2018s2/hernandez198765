@@ -42,6 +42,10 @@ class TransactionController {
       throw new Error(error);
     }
 
+    console.log('Respuestas', gatewayResponse);
+    console.log('Respuestas', networkResponse);
+    console.log('Respuestas', transmitterResponse);
+
     try {
       transactionResponse = await DatabaseManager.saveTransaction(
         gatewayResponse,

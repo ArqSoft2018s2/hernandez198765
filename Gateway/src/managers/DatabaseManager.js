@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-// import TransactionSchema from '../models/TransactionSchema';
+import TransactionSchema from '../models/transactionSchema';
+import serializer from '../helpers/serializer';
+import deserializer from '../helpers/deserializer';
+
 class DatabaseManager {
   constructor() {
     dotenv.config();
@@ -19,17 +22,12 @@ class DatabaseManager {
     }
   };
 
-  // sendNewTransaction = (transaction, callback) => {
-  //   const newTransaction = new TransactionSchema(transaction);
-
-  //   newTransaction.save((error, databaseResponse) => {
-  //     if (error) {
-  //       callback(500, 'Error');
-  //     } else {
-  //       callback(200, databaseResponse);
-  //     }
-  //   });
-  // };
+  saveTransaction = async transaction => {
+    const parsedTransaction = serializer(transaction);
+    const newTransaction = new TransactionSchema(parsedTransaction);
+    const response = await newTransaction.save();
+    return deserializer(response);
+  };
 }
 
 export default new DatabaseManager();
