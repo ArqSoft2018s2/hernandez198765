@@ -9,11 +9,23 @@ const appRouter = app => {
     try {
       const { transaction } = req.body;
       const response = await TransactionController.sendTransaction(transaction);
-      console.log(response);
       res.status(200).send(
         `Transaction successful 
         Transaction Identifier: ${response.data.id}`,
       );
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.delete('/Transaction/:transactionId', async (req, res) => {
+    try {
+      const { transactionId } = req.params;
+      await TransactionController.deleteTransaction(transactionId);
+      res.status(200).send('Your purchase was returned succesfully');
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data
