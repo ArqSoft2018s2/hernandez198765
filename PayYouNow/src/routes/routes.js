@@ -20,6 +20,21 @@ const appRouter = app => {
       res.status(500).send(errorResponse);
     }
   });
+
+  app.delete('/Transaction', async (req, res) => {
+    try {
+      const transactionId = req.params;
+      const response = await TransactionController.returnPurchase(
+        transactionId,
+      );
+      res.status(200).send(response);
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
 };
 
 export default appRouter;

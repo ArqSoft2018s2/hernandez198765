@@ -9,9 +9,8 @@ class NetworkController {
     return networkResponse.data;
   };
 
-  deleteTransaction = async req => {
-    const transaction = req.id;
-    const url = `${apiConstants.NETWORK_API}/Network/${transaction}`;
+  deleteTransaction = async transactionId => {
+    const url = `${apiConstants.NETWORK_API}/Network/${transactionId}`;
     const networkResponse = await HttpService.delete(url);
     return networkResponse.data;
   };

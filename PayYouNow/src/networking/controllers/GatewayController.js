@@ -10,13 +10,10 @@ class GatewayController {
     return gatewayResponse.data;
   };
 
-  deleteTransaction = async req => {
-    // const transaction = req.id;
-    // const url = `${apiConstants.GATEWAY_API}/Gateway/${transaction}`;
-    // const gatewayResponse = await HttpService.delete(url);
-    // return gatewayResponse.data;
-    // TODO: a borrar;
-    return true;
+  deleteTransaction = async transactionId => {
+    const url = `${apiConstants.GATEWAY_API}/Gateway/${transactionId}`;
+    const gatewayResponse = await HttpService.delete(url);
+    return gatewayResponse.data;
   };
 
   obtainGateway = transaction => {
