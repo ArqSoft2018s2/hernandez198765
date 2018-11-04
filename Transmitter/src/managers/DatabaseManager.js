@@ -43,7 +43,7 @@ class DatabaseManager {
   updateCardBalance = async card => {
     await CardSchema.update(
       { number: card.number },
-      { $inc: { balance: card.amount } },
+      { $inc: { balance: -card.amount } },
       error => {
         if (error) {
           throw new Error('We cant update card balance');

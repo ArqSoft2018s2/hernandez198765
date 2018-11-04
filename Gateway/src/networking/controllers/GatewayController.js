@@ -31,6 +31,7 @@ class GatewayController {
       const databaseIDTransaction = await DatabaseManager.saveTransaction(
         transaction,
       );
+      console.log('GATEWAY ACA');
       return {
         ...databaseIDTransaction,
         network,

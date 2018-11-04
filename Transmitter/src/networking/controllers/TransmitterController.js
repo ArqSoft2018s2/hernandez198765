@@ -32,7 +32,11 @@ class TransmitterController {
     this.validateLuhn(transactionCard.number);
     this.validateExpirationDate(transactionCard.expirationDate);
     this.validateCardStatus(response.status);
-    return language.VALID_CARD;
+    return {
+      number: transactionCard.number,
+      data: language.VALID_CARD,
+      amount: transactionCard.amount,
+    };
   };
 
   validateCardStatus = status => {

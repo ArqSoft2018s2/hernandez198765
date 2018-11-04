@@ -20,6 +20,7 @@ class TransactionController {
       req,
       res,
     );
+
     try {
       networkResponse = await NetworkController.communicateWithNetwork(
         req,
@@ -27,7 +28,7 @@ class TransactionController {
       );
     } catch (error) {
       await this.rollbackGateway(gatewayResponse);
-      throw new Error(error);
+      throw new Error(error.response.data);
     }
 
     try {
@@ -38,14 +39,14 @@ class TransactionController {
     } catch (error) {
       await this.rollbackGateway(gatewayResponse);
       await this.rollbackNetwork(networkResponse);
-      throw new Error(error);
+      throw new Error(error.response.data);
     }
 
     try {
       transactionResponse = await DatabaseManager.saveTransaction(
         gatewayResponse,
-        transmitterResponse,
         networkResponse,
+        transmitterResponse,
       );
     } catch (error) {
       await this.rollbackGateway(gatewayResponse);
@@ -53,7 +54,6 @@ class TransactionController {
       await this.rollbackTransmitter(transactionResponse);
       throw new Error(error);
     }
-
     return transactionResponse;
   };
 
@@ -61,7 +61,7 @@ class TransactionController {
     try {
       await GatewayController.deleteTransaction(gatewayResponse);
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error.response.data);
     }
   };
 
@@ -69,7 +69,7 @@ class TransactionController {
     try {
       await NetworkController.deleteTransaction(networkResponse);
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error.response.data);
     }
   };
 
@@ -77,7 +77,7 @@ class TransactionController {
     try {
       await TransmitterController.deleteTransaction(transmitterResponse);
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error.response.data);
     }
   };
 }

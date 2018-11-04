@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import TransactionSchema from '../models/transactionSchema';
+import serializer from '../helpers/serializer';
+import deserializer from '../helpers/deserializer';
 
 class DatabaseManager {
   constructor() {
@@ -18,14 +20,11 @@ class DatabaseManager {
     }
   };
 
-  saveTransaction = async transaction => {
-    const newTransaction = new TransactionSchema(transaction);
-
+  saveTransaction = async (gateway, network, transmitter) => {
+    const parsedTransaction = serializer(gateway, network, transmitter);
+    const newTransaction = new TransactionSchema(parsedTransaction);
     const response = await newTransaction.save();
-    if (!response) {
-      throw new Error('Error papi');
-    }
-    return response;
+    return deserializer(response);
   };
 }
 

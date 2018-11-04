@@ -5,12 +5,19 @@ const appRouter = app => {
     res.status(200).send('Welcome to our restful API');
   });
 
-  app.post('/Transaction', async (req, res) => {
+  app.post('/Transaction', async (req, res, next) => {
     try {
-      const response = await TransactionController.makeCommunications(req, res);
+      const response = await TransactionController.makeCommunications(
+        req,
+        res,
+        next,
+      );
       res.status(200).send(response);
     } catch (error) {
-      res.status(500).send(error.response.data);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
     }
   });
 };
