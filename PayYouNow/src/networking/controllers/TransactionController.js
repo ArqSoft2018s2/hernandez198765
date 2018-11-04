@@ -20,14 +20,13 @@ class TransactionController {
       req,
       res,
     );
-
     try {
       networkResponse = await NetworkController.communicateWithNetwork(
         req,
         res,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse);
+      await this.rollbackGateway(gatewayResponse.data);
       throw new Error(error);
     }
 
@@ -37,14 +36,10 @@ class TransactionController {
         res,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse);
-      await this.rollbackNetwork(networkResponse);
+      await this.rollbackGateway(gatewayResponse.data);
+      await this.rollbackNetwork(networkResponse.data);
       throw new Error(error);
     }
-
-    console.log('Respuestas', gatewayResponse);
-    console.log('Respuestas', networkResponse);
-    console.log('Respuestas', transmitterResponse);
 
     try {
       transactionResponse = await DatabaseManager.saveTransaction(
@@ -53,9 +48,9 @@ class TransactionController {
         networkResponse,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse);
-      await this.rollbackNetwork(networkResponse);
-      await this.rollbackTransmitter(transactionResponse);
+      await this.rollbackGateway(gatewayResponse.data);
+      await this.rollbackNetwork(networkResponse.data);
+      await this.rollbackTransmitter(transactionResponse.data);
       throw new Error(error);
     }
 
