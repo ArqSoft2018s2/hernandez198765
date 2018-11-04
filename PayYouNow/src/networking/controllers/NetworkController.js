@@ -8,6 +8,13 @@ class NetworkController {
     const networkResponse = await HttpService.post(url, transaction);
     return networkResponse;
   };
+
+  deleteTransaction = async (req, res) => {
+    const transaction = req.id;
+    const url = `${apiConstants.NETWORK_API}/Network/${transaction}`;
+    const networkResponse = await HttpService.delete(url);
+    return networkResponse;
+  };
 }
 
 export default new NetworkController();

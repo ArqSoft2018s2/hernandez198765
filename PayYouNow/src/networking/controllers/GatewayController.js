@@ -10,6 +10,13 @@ class GatewayController {
     return gatewayResponse;
   };
 
+  deleteTransaction = async (req, res) => {
+    const transaction = req.id;
+    const url = `${apiConstants.GATEWAY_API}/Gateway/${transaction}`;
+    const gatewayResponse = await HttpService.delete(url);
+    return gatewayResponse;
+  };
+
   obtainGateway = transaction => {
     if (!transaction.gateway) return 'No gateway specified';
     //TODO: go to database and get gateway route, etc..

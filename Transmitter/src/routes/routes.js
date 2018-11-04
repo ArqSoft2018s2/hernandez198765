@@ -11,7 +11,7 @@ const appRouter = app => {
     }
   });
 
-  app.post('/Transaction', async (req, res) => {
+  app.post('/Transmitter', async (req, res) => {
     try {
       const card = req.body;
       const response = await TransmitterController.validateCard(card);
