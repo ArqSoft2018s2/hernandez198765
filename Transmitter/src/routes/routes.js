@@ -23,8 +23,13 @@ const appRouter = app => {
   });
 
   app.delete('/Transmitter/:transactionId/:amount', async (req, res) => {
-    console.log(req.params);
-    res.status(200).send('HOLA');
+    try {
+      const { amount, transactionId } = req.params;
+      await TransmitterController.returnPurchase(transactionId, amount);
+      res.status(200).send('Transaction returned');
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   });
 };
 

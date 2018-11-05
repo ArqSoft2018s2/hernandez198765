@@ -40,15 +40,10 @@ class DatabaseManager {
     return response;
   };
 
-  updateCardBalance = async card => {
+  updateCardBalance = async (transactionId, amount) => {
     await CardSchema.update(
-      { number: card.number },
-      { $inc: { balance: -card.amount } },
-      error => {
-        if (error) {
-          throw new Error('We cant update card balance');
-        }
-      },
+      { number: transactionId },
+      { $inc: { balance: amount } },
     );
   };
 }

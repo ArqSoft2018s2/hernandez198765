@@ -12,9 +12,8 @@ class TransmitterController {
     const uri = `${
       apiConstants.TRANSMITTER_API
     }/Transmitter/${transactionId}/${amount}`;
-    console.log(uri);
     const transmitterResponse = await HttpService.delete(uri);
-    return transmitterResponse;
+    return transmitterResponse.data;
   };
 }
 
