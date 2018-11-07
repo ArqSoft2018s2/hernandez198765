@@ -22,6 +22,7 @@ const appRouter = app => {
     }
   });
 
+  // TODO: change for an update or patch.
   app.delete('/Transmitter/:transactionId/:amount', async (req, res) => {
     try {
       const { amount, transactionId } = req.params;

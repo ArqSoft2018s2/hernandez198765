@@ -27,9 +27,8 @@ class HttpService {
     return this.axios.patch(url, body);
   }
 
-  delete(url, body = {}) {
-    const data = { data: body };
-    return this.axios.delete(url, data);
+  delete(url) {
+    return this.axios.delete(url);
   }
 }
 
