@@ -47,7 +47,9 @@ class DatabaseManager {
       status: 'OK',
     };
     CardSchema.transactions.push(newTransaction);
-    await CardSchema.save();
+    const newCard = await CardSchema.save();
+    console.log(newCard);
+    return newCard.transactions[newCard.transactions.length].id;
   };
 
   updateCardTransactions = async (transactionId, status) => {

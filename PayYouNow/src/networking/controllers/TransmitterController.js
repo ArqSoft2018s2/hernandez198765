@@ -4,7 +4,7 @@ import apiConstants from '../../helpers/ApiConstants';
 class TransmitterController {
   communicateWithTransmitter = async req => {
     const url = `${apiConstants.TRANSMITTER_API}/Transmitter`;
-    const transmitterResponse = await HttpService.post(url, req.body.card);
+    const transmitterResponse = await HttpService.post(url, req.body);
     return transmitterResponse.data;
   };
 

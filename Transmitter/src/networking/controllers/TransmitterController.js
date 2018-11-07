@@ -16,6 +16,29 @@ class TransmitterController {
     }
   };
 
+  chargeback = async transaction => {
+    await this.updateCardTransactions(transaction);
+  };
+
+  addNewTransaction = async transaction => {
+    try {
+      const transactionID = await DatabaseManager.addCardTransactions(
+        transaction,
+      );
+      return transactionID;
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  updateCardTransactions = async transaction => {
+    try {
+      await DatabaseManager.updateCard(transaction, 'CHARGEBACK');
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
   updateCardBalance = async card => {
     try {
       await DatabaseManager.updateCardBalance(card.number, -card.amount);
@@ -93,8 +116,9 @@ class TransmitterController {
     return nCheck % 10 === 0;
   };
 
-  returnPurchase = async (transactionId, amount) => {
-    await DatabaseManager.updateCardBalance(transactionId, amount);
+  returnPurchase = async (transactionId, cardNumber) => {
+    const amount = await DatabaseManager.deleteCardTransactions(transactionId);
+    await DatabaseManager.updateCardBalance(cardNumber, amount);
   };
 }
 

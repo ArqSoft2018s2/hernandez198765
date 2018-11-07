@@ -13,21 +13,33 @@ const appRouter = app => {
 
   app.post('/Transmitter', async (req, res) => {
     try {
-      const card = req.body;
+      const { card } = req.body;
       const validationResponse = await TransmitterController.validateCard(card);
-      await TransmitterController.updateCardBalance(card);
-      res.status(200).send(validationResponse);
+      const transactionId = await TransmitterController.updateCardTransactions(
+        req.body,
+      );
+      await TransmitterController.updateCardBalance(req.body);
+      res.status(200).send({ ...validationResponse, transactionId });
     } catch (error) {
       res.status(500).send(error.message);
     }
   });
 
-  // TODO: change for an update or patch.
   app.delete('/Transmitter/:transactionId/:amount', async (req, res) => {
     try {
       const { amount, transactionId } = req.params;
       await TransmitterController.returnPurchase(transactionId, amount);
       res.status(200).send('Transaction returned');
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
+  app.update('/Transmitter', async (req, res) => {
+    try {
+      const transactionId = req.body;
+      await TransmitterController.chargebackPurchase(transactionId);
+      res.status(200).send('Chargeback transaction');
     } catch (error) {
       res.status(500).send(error.message);
     }
