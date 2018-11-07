@@ -47,7 +47,6 @@ class TransactionController {
         gatewayResponse,
         networkResponse,
         transmitterResponse,
-        req.amount,
       );
     } catch (error) {
       await this.rollbackGateway(gatewayResponse.id);
@@ -89,7 +88,7 @@ class TransactionController {
       );
       await TransmitterController.deleteTransaction(
         transaction.transmitterId,
-        transaction.amount,
+        transaction.transmitterTransactionId,
       );
       await NetworkController.deleteTransaction(transaction.networkId);
       await GatewayController.deleteTransaction(transaction.gatewayId);

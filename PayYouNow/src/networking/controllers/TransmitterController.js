@@ -4,14 +4,15 @@ import apiConstants from '../../helpers/ApiConstants';
 class TransmitterController {
   communicateWithTransmitter = async req => {
     const url = `${apiConstants.TRANSMITTER_API}/Transmitter`;
-    const transmitterResponse = await HttpService.post(url, req.body.card);
+    const transmitterResponse = await HttpService.post(url, req.body);
     return transmitterResponse.data;
   };
 
-  deleteTransaction = async (transactionId, amount) => {
+  // TODO: Maybe a post, ask about this.
+  deleteTransaction = async (transactionId, transmitterTransactionId) => {
     const uri = `${
       apiConstants.TRANSMITTER_API
-    }/Transmitter/${transactionId}/${amount}`;
+    }/Transmitter/${transactionId}/${transmitterTransactionId}`;
     const transmitterResponse = await HttpService.delete(uri);
     return transmitterResponse.data;
   };

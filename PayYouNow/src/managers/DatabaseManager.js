@@ -20,8 +20,8 @@ class DatabaseManager {
     }
   };
 
-  saveTransaction = async (gateway, network, transmitter, amount) => {
-    const parsedTransaction = serializer(gateway, network, transmitter, amount);
+  saveTransaction = async (gateway, network, transmitter) => {
+    const parsedTransaction = serializer(gateway, network, transmitter);
     const newTransaction = new TransactionSchema(parsedTransaction);
     const response = await newTransaction.save();
     return deserializer(response);
