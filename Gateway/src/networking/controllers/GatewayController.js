@@ -31,7 +31,6 @@ class GatewayController {
       const databaseIDTransaction = await DatabaseManager.saveTransaction(
         transaction,
       );
-      console.log('GATEWAY ACA');
       return {
         ...databaseIDTransaction,
         network,
@@ -39,6 +38,10 @@ class GatewayController {
     } catch (error) {
       throw new Error(error);
     }
+  };
+
+  returnPurchase = async transactionId => {
+    await DatabaseManager.deleteTransaction(transactionId);
   };
 }
 

@@ -28,6 +28,10 @@ class DatabaseManager {
     const response = await newTransaction.save();
     return deserializer(response);
   };
+
+  deleteTransaction = async transactionId => {
+    await TransactionSchema.findByIdAndRemove(transactionId);
+  };
 }
 
 export default new DatabaseManager();
