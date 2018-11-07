@@ -10,7 +10,16 @@ const appRouter = app => {
       console.log('RESPONDIENDO');
       res.status(200).send(transactionWithCard);
     } catch (error) {
-      console.log(error.message);
+      res.status(500).send(error.message);
+    }
+  });
+
+  app.delete('/Transmitter/:transactionId', async (req, res) => {
+    try {
+      const { amount, transactionId } = req.params;
+      await GatewayController.returnPurchase(transactionId, amount);
+      res.status(200).send('Transaction returned');
+    } catch (error) {
       res.status(500).send(error.message);
     }
   });

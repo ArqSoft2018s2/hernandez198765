@@ -47,11 +47,12 @@ class TransactionController {
         gatewayResponse,
         networkResponse,
         transmitterResponse,
+        req.amount,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse);
-      await this.rollbackNetwork(networkResponse);
-      await this.rollbackTransmitter(transactionResponse);
+      await this.rollbackGateway(gatewayResponse.id);
+      await this.rollbackNetwork(networkResponse.id);
+      await this.rollbackTransmitter(transactionResponse.number);
       throw new Error(error);
     }
     return transactionResponse;
@@ -76,6 +77,22 @@ class TransactionController {
   rollbackTransmitter = async transmitterResponse => {
     try {
       await TransmitterController.deleteTransaction(transmitterResponse);
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
+  };
+
+  returnPurchase = async transactionId => {
+    try {
+      const transaction = await DatabaseManager.getTransactionFromDatabase(
+        transactionId,
+      );
+      await TransmitterController.deleteTransaction(
+        transaction.transmitterId,
+        transaction.amount,
+      );
+      await NetworkController.deleteTransaction(transaction.networkId);
+      await GatewayController.deleteTransaction(transaction.gatewayId);
     } catch (error) {
       throw new Error(error.response.data);
     }

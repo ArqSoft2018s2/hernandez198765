@@ -38,7 +38,10 @@ class TransactionController {
     }
   };
 
-  deleteTransaction = uri => HttpService.delete(uri);
+  deleteTransaction = async transactionId => {
+    const uri = `${this.BASE_API}/${transactionId}`;
+    await HttpService.delete(uri);
+  };
 
   patchTransaction = (uri, body) => HttpService.patch(uri, body);
 }

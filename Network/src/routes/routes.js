@@ -10,6 +10,16 @@ const appRouter = app => {
       res.status(500).send(error.message);
     }
   });
+
+  app.delete('/Transmitter/:transactionId', async (req, res) => {
+    try {
+      const { amount, transactionId } = req.params;
+      await NetworkController.returnPurchase(transactionId, amount);
+      res.status(200).send('Transaction returned');
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
 };
 
 export default appRouter;

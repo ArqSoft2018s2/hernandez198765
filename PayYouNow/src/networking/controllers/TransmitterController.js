@@ -8,10 +8,11 @@ class TransmitterController {
     return transmitterResponse.data;
   };
 
-  deleteTransaction = async req => {
-    const transaction = req.id;
-    const url = `${apiConstants.TRANSMITTER_API}/Transmitter/${transaction}`;
-    const transmitterResponse = await HttpService.delete(url, req.body.card);
+  deleteTransaction = async (transactionId, amount) => {
+    const uri = `${
+      apiConstants.TRANSMITTER_API
+    }/Transmitter/${transactionId}/${amount}`;
+    const transmitterResponse = await HttpService.delete(uri);
     return transmitterResponse.data;
   };
 }

@@ -18,7 +18,7 @@ class TransmitterController {
 
   updateCardBalance = async card => {
     try {
-      await DatabaseManager.updateCardBalance(card);
+      await DatabaseManager.updateCardBalance(card.number, -card.amount);
     } catch (error) {
       throw new Error(error);
     }
@@ -91,6 +91,10 @@ class TransmitterController {
       bEven = !bEven;
     }
     return nCheck % 10 === 0;
+  };
+
+  returnPurchase = async (transactionId, amount) => {
+    await DatabaseManager.updateCardBalance(transactionId, amount);
   };
 }
 

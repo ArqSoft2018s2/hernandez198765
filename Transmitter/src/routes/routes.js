@@ -21,6 +21,17 @@ const appRouter = app => {
       res.status(500).send(error.message);
     }
   });
+
+  // TODO: change for an update or patch.
+  app.delete('/Transmitter/:transactionId/:amount', async (req, res) => {
+    try {
+      const { amount, transactionId } = req.params;
+      await TransmitterController.returnPurchase(transactionId, amount);
+      res.status(200).send('Transaction returned');
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
 };
 
 export default appRouter;

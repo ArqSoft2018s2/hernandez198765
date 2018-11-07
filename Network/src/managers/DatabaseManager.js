@@ -50,6 +50,10 @@ class DatabaseManager {
     const response = await newCardDateTransaction.save();
     return response;
   };
+
+  deleteTransaction = async transactionId => {
+    await CardDateTransactionsSchema.findByIdAndRemove(transactionId);
+  };
 }
 
 export default new DatabaseManager();

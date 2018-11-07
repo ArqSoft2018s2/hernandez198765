@@ -35,6 +35,10 @@ class NetworkController {
       return deserializer(response);
     }
   };
+
+  returnPurchase = async transactionId => {
+    await DatabaseManager.deleteTransaction(transactionId);
+  };
 }
 
 export default new NetworkController();
