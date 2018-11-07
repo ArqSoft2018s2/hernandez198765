@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import TransactionSchema from './TransactionSchema';
 
 const CardSchema = new mongoose.Schema({
   number: Number,
@@ -6,6 +7,7 @@ const CardSchema = new mongoose.Schema({
   holderName: String,
   securityCode: String,
   balance: Number,
+  transactions: [TransactionSchema],
 });
 
 export default mongoose.model('Cards', CardSchema);
