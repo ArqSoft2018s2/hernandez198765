@@ -11,6 +11,8 @@ const appRouter = app => {
     }
   });
 
+  // TODO: Change about keeping the card number, we can find the balance only with the transaction id.
+  // need to test it.
   app.post('/Transmitter', async (req, res) => {
     try {
       const { card } = req.body;
@@ -19,23 +21,31 @@ const appRouter = app => {
         req.body,
       );
       await TransmitterController.updateCardBalance(req.body);
-      res.status(200).send({ ...validationResponse, transactionId });
+      res.status(200).send({ ...validationResponse, id: transactionId });
     } catch (error) {
       res.status(500).send(error.message);
     }
   });
 
-  app.delete('/Transmitter/:transactionId/:amount', async (req, res) => {
-    try {
-      const { amount, transactionId } = req.params;
-      await TransmitterController.returnPurchase(transactionId, amount);
-      res.status(200).send('Transaction returned');
-    } catch (error) {
-      res.status(500).send(error.message);
-    }
-  });
+  // TODO: With the changes of only find the card by the transaction id
+  // ill only need one parameter.
+  app.delete(
+    '/Transmitter/:transactionId/:transmitterTransactionID',
+    async (req, res) => {
+      try {
+        const { transmitterTransactionID, transactionId } = req.params;
+        await TransmitterController.returnPurchase(
+          transactionId,
+          transmitterTransactionID,
+        );
+        res.status(200).send('Transaction returned');
+      } catch (error) {
+        res.status(500).send(error.message);
+      }
+    },
+  );
 
-  app.update('/Transmitter', async (req, res) => {
+  app.put('/Transmitter', async (req, res) => {
     try {
       const transactionId = req.body;
       await TransmitterController.chargebackPurchase(transactionId);

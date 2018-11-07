@@ -42,6 +42,7 @@ class TransactionController {
       throw new Error(error.response.data);
     }
 
+    // TODO: Change about keeping card number;
     try {
       transactionResponse = await DatabaseManager.saveTransaction(
         gatewayResponse,
@@ -92,6 +93,17 @@ class TransactionController {
       );
       await NetworkController.deleteTransaction(transaction.networkId);
       await GatewayController.deleteTransaction(transaction.gatewayId);
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
+  };
+
+  chargeback = async transactionToChargeback => {
+    try {
+      const response = await TransmitterController.chargeback(
+        transactionToChargeback,
+      );
+      return response;
     } catch (error) {
       throw new Error(error.response.data);
     }

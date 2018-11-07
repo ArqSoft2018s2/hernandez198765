@@ -3,8 +3,8 @@ import apiConstants from '../../helpers/ApiConstants';
 
 class TransmitterController {
   communicateWithTransmitter = async req => {
-    const url = `${apiConstants.TRANSMITTER_API}/Transmitter`;
-    const transmitterResponse = await HttpService.post(url, req.body);
+    const uri = `${apiConstants.TRANSMITTER_API}/Transmitter`;
+    const transmitterResponse = await HttpService.post(uri, req.body);
     return transmitterResponse.data;
   };
 
@@ -14,6 +14,15 @@ class TransmitterController {
       apiConstants.TRANSMITTER_API
     }/Transmitter/${transactionId}/${transmitterTransactionId}`;
     const transmitterResponse = await HttpService.delete(uri);
+    return transmitterResponse.data;
+  };
+
+  chargeback = async transactionToChargeback => {
+    const uri = `${apiConstants.TRANSMITTER_API}/Transmitter`;
+    const transmitterResponse = await HttpService.put(
+      uri,
+      transactionToChargeback,
+    );
     return transmitterResponse.data;
   };
 }
