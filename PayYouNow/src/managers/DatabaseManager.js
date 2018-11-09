@@ -34,6 +34,10 @@ class DatabaseManager {
     }
     return response;
   };
+
+  deleteTransaction = async transactionId => {
+    await TransactionSchema.findByIdAndRemove(transactionId);
+  };
 }
 
 export default new DatabaseManager();

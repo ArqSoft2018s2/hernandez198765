@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import CardSchema from '../models/CardSchema';
+import CardModel from '../models/CardModel';
 
 class DatabaseManager {
   constructor() {
@@ -19,7 +19,7 @@ class DatabaseManager {
   };
 
   addNewCard = async newCard => {
-    const newTransaction = new CardSchema(newCard);
+    const newTransaction = new CardModel(newCard);
 
     await newTransaction.save(error => {
       if (error) {
@@ -28,8 +28,20 @@ class DatabaseManager {
     });
   };
 
+  findCard = async card => {
+    const response = await CardModel.findOne({
+      number: card.number,
+      holderName: card.holderName,
+      securityCode: card.securityCode,
+    });
+    if (!response) {
+      throw new Error('Card not emitted by Transmitter');
+    }
+    return response;
+  };
+
   validateCardIsEmitted = async card => {
-    const response = await CardSchema.findOne({
+    const response = await CardModel.findOne({
       number: card.number,
       holderName: card.holderName,
       securityCode: card.securityCode,
@@ -41,32 +53,34 @@ class DatabaseManager {
   };
 
   addCardTransactions = async transaction => {
+    const card = await this.findCard(transaction.card);
     const newTransaction = {
       amount: transaction.amount,
       date: transaction.date,
       status: 'OK',
     };
-    CardSchema.transactions.push(newTransaction);
-    const newCard = await CardSchema.save();
-    console.log(newCard);
-    return newCard.transactions[newCard.transactions.length].id;
+    card.transactions.push(newTransaction);
+    const newCard = await card.save();
+    return newCard.transactions[newCard.transactions.length - 1].id;
   };
 
   updateCardTransactions = async (transactionId, status) => {
-    const transaction = await CardSchema.transactions.id(transactionId);
+    const card = await CardModel.findOne({ 'transactions._id': transactionId });
+    const transaction = await card.transactions.id(transactionId);
     transaction.status = status;
-    await CardSchema.save();
+    await card.save();
   };
 
   deleteCardTransactions = async transactionId => {
-    const amount = await CardSchema.transactions.id(transactionId).amount;
-    const removed = await CardSchema.transactions.id(transactionId).remove();
-    console.log(removed);
-    return amount;
+    const card = await CardModel.findOne({ 'transactions._id': transactionId });
+    const amount = await card.transactions.id(transactionId).amount;
+    const removed = await card.transactions.id(transactionId).remove();
+    await card.save();
+    return { amount, removed, number: card.number };
   };
 
   updateCardBalance = async (transactionId, amount) => {
-    await CardSchema.update(
+    await CardModel.update(
       { number: transactionId },
       { $inc: { balance: amount } },
     );

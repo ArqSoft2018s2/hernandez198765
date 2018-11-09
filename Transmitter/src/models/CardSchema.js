@@ -10,4 +10,4 @@ const CardSchema = new mongoose.Schema({
   transactions: [TransactionSchema],
 });
 
-export default mongoose.model('Cards', CardSchema);
+export default CardSchema;

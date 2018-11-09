@@ -15,35 +15,27 @@ const appRouter = app => {
   // need to test it.
   app.post('/Transmitter', async (req, res) => {
     try {
-      const { card } = req.body;
+      const { card, amount } = req.body;
       const validationResponse = await TransmitterController.validateCard(card);
-      const transactionId = await TransmitterController.updateCardTransactions(
+      const transactionId = await TransmitterController.addNewTransaction(
         req.body,
       );
-      await TransmitterController.updateCardBalance(req.body);
+      await TransmitterController.updateCardBalance(card, amount);
       res.status(200).send({ ...validationResponse, id: transactionId });
     } catch (error) {
       res.status(500).send(error.message);
     }
   });
 
-  // TODO: With the changes of only find the card by the transaction id
-  // ill only need one parameter.
-  app.delete(
-    '/Transmitter/:transactionId/:transmitterTransactionID',
-    async (req, res) => {
-      try {
-        const { transmitterTransactionID, transactionId } = req.params;
-        await TransmitterController.returnPurchase(
-          transactionId,
-          transmitterTransactionID,
-        );
-        res.status(200).send('Transaction returned');
-      } catch (error) {
-        res.status(500).send(error.message);
-      }
-    },
-  );
+  app.delete('/Transmitter/:transactionId', async (req, res) => {
+    try {
+      const { transactionId } = req.params;
+      await TransmitterController.returnPurchase(transactionId);
+      res.status(200).send('Transaction returned');
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
 
   app.put('/Transmitter', async (req, res) => {
     try {
