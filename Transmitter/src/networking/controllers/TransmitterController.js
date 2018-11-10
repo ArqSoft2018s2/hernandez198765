@@ -16,8 +16,22 @@ class TransmitterController {
     }
   };
 
-  chargeback = async transaction => {
-    await this.updateCardTransactions(transaction);
+  chargebackPurchase = async transaction => {
+    try {
+      const card = await DatabaseManager.findCardByTransactionId(transaction);
+      this.validateChargebackTime(card.date);
+      await this.updateCardTransactions(transaction);
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  validateChargebackTime = date => {
+    const sixMonthAgo = moment().add(-6, 'months');
+    const transactionTime = moment.unix(date);
+    if (transactionTime.isBefore(sixMonthAgo)) {
+      throw new Error('Time for chargeback exceed');
+    }
   };
 
   addNewTransaction = async transaction => {

@@ -8,7 +8,6 @@ class TransmitterController {
     return transmitterResponse.data;
   };
 
-  // TODO: Maybe a post, ask about this.
   deleteTransaction = async transactionId => {
     const uri = `${apiConstants.TRANSMITTER_API}/Transmitter/${transactionId}`;
     const transmitterResponse = await HttpService.delete(uri);

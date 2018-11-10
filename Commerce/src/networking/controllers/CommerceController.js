@@ -43,7 +43,14 @@ class TransactionController {
     await HttpService.delete(uri);
   };
 
-  patchTransaction = (uri, body) => HttpService.patch(uri, body);
+  chargeback = async transactionToChargeback => {
+    const uri = `${this.BASE_API}`;
+    const transmitterResponse = await HttpService.put(
+      uri,
+      transactionToChargeback,
+    );
+    return transmitterResponse.data;
+  };
 }
 
 export default new TransactionController();

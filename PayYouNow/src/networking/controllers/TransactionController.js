@@ -100,9 +100,12 @@ class TransactionController {
 
   chargeback = async transactionToChargeback => {
     try {
-      const response = await TransmitterController.chargeback(
+      const transaction = await DatabaseManager.getTransactionFromDatabase(
         transactionToChargeback,
       );
+      const response = await TransmitterController.chargeback({
+        transactionId: transaction.transmitterId,
+      });
       return response;
     } catch (error) {
       throw new Error(error.response.data);

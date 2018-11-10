@@ -39,9 +39,9 @@ const appRouter = app => {
 
   app.put('/Transmitter', async (req, res) => {
     try {
-      const transactionId = req.body;
+      const { transactionId } = req.body;
       await TransmitterController.chargebackPurchase(transactionId);
-      res.status(200).send('Chargeback transaction');
+      res.status(200).send('Chargeback succesfull');
     } catch (error) {
       res.status(500).send(error.message);
     }

@@ -38,12 +38,11 @@ const appRouter = app => {
 
   app.put('/Transaction', async (req, res) => {
     try {
-      const transactionToChargeback = req.body;
-      const response = await TransactionController.chargeback(
-        transactionToChargeback,
-      );
+      const { transactionId } = req.body;
+      const response = await TransactionController.chargeback(transactionId);
       res.status(200).send(response);
     } catch (error) {
+      console.log(error);
       const errorResponse = error.response
         ? error.response.data
         : error.message;

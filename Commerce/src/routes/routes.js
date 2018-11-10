@@ -33,6 +33,21 @@ const appRouter = app => {
       res.status(500).send(errorResponse);
     }
   });
+
+  app.put('/Transaction', async (req, res) => {
+    try {
+      const transactionToChargeback = req.body;
+      const response = await CommerceController.chargeback(
+        transactionToChargeback,
+      );
+      res.status(200).send(response);
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
 };
 
 export default appRouter;

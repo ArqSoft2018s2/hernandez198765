@@ -52,6 +52,14 @@ class DatabaseManager {
     return response;
   };
 
+  findCardByTransactionId = async transactionId => {
+    const card = await CardModel.findOne({
+      'transactions._id': transactionId,
+    }).lean();
+    const dsad = 1231;
+    return card;
+  };
+
   addCardTransactions = async transaction => {
     const card = await this.findCard(transaction.card);
     const newTransaction = {
