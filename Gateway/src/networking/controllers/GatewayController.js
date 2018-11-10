@@ -1,5 +1,6 @@
 import CreditCards from '../../helpers/CreditCards';
 import DatabaseManager from '../../managers/DatabaseManager';
+import LoggerController from './LoggerController';
 
 class GatewayController {
   constructor() {
@@ -27,6 +28,7 @@ class GatewayController {
 
   identifyNetwork = async transaction => {
     try {
+      LoggerController.registerLog('Identifing Network');
       const network = this.getNetworkFromCreditCard(transaction);
       const databaseIDTransaction = await DatabaseManager.saveTransaction(
         transaction,
@@ -36,6 +38,7 @@ class GatewayController {
         network,
       };
     } catch (error) {
+      LoggerController.registerError(error);
       throw new Error(error);
     }
   };
@@ -45,6 +48,7 @@ class GatewayController {
   };
 
   batchClosingTransaction = async (RUT, startDate, endDate) => {
+    LoggerController.registerLog('Obtaining batch closing transaction');
     const batchClosing = await DatabaseManager.batchClosingTransaction(
       RUT,
       startDate,
