@@ -1,10 +1,16 @@
-import Rollbar from 'rollbar';
+import express from 'express';
+import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+import routes from './src/routes/routes';
 
-const rollbar = new Rollbar({
-  accessToken: '207eaebd725f4d12b0afb59033ca0557',
-  captureUncaught: true,
-  captureUnhandledRejections: true,
+// Environment Variables configuration
+dotenv.config();
+// Express Configuration
+const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+routes(app);
+
+const server = app.listen(8009, () => {
+  console.log('app running on port.', server.address().port);
 });
-
-// record a generic message and send it to Rollbar
-rollbar.log('Hello world!');
