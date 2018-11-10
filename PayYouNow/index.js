@@ -1,8 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
 import DatabaseManager from './src/managers/DatabaseManager';
 import routes from './src/routes/routes';
 
+// Environment Variables configuration
+dotenv.config();
 // Express Configuration
 const app = express();
 app.use(bodyParser.json());

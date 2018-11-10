@@ -1,9 +1,11 @@
 import HttpService from '../HttpService';
 import apiConstants from '../../helpers/ApiConstants';
 import DatabaseManager from '../../managers/DatabaseManager';
+import LoggerController from './LoggerController';
 
 class GatewayController {
   getGateways = async () => {
+    LoggerController.registerLog('Start getting gateways');
     const gateways = await DatabaseManager.getGateways();
     return gateways;
   };

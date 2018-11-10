@@ -1,5 +1,6 @@
 import TransactionController from '../networking/controllers/TransactionController';
 import GatewayController from '../networking/controllers/GatewayController';
+import LoggerController from '../networking/controllers/LoggerController';
 
 const appRouter = app => {
   app.get('/', (req, res) => {
@@ -72,6 +73,7 @@ const appRouter = app => {
       const response = await GatewayController.getGateways();
       res.status(200).send(response);
     } catch (error) {
+      LoggerController.registerError(error);
       const errorResponse = error.response
         ? error.response.data
         : error.message;
