@@ -1,7 +1,13 @@
 import HttpService from '../HttpService';
 import apiConstants from '../../helpers/ApiConstants';
+import DatabaseManager from '../../managers/DatabaseManager';
 
 class GatewayController {
+  getGateways = async () => {
+    const gateways = await DatabaseManager.getGateways();
+    return gateways;
+  };
+
   communicateWithGateway = async req => {
     const gatewayToCommunicate = this.obtainGateway(req.body);
     console.log(gatewayToCommunicate);

@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
-import TransactionSchema from '../models/transactionSchema';
+import TransactionModel from '../models/transactionModel';
 import serializer from '../helpers/serializer';
 import deserializer from '../helpers/deserializer';
+import GatewayModel from '../models/gatewayModel';
 
 class DatabaseManager {
   constructor() {
@@ -20,15 +21,20 @@ class DatabaseManager {
     }
   };
 
+  getGateways = async () => {
+    const response = await GatewayModel.find();
+    return response;
+  };
+
   saveTransaction = async (gateway, network, transmitter) => {
     const parsedTransaction = serializer(gateway, network, transmitter);
-    const newTransaction = new TransactionSchema(parsedTransaction);
+    const newTransaction = new TransactionModel(parsedTransaction);
     const response = await newTransaction.save();
     return deserializer(response);
   };
 
   getTransactionFromDatabase = async transactionId => {
-    const response = await TransactionSchema.findById(transactionId).lean();
+    const response = await TransactionModel.findById(transactionId).lean();
     if (!response) {
       throw new Error('Transaction doesnt exists');
     }
@@ -36,7 +42,7 @@ class DatabaseManager {
   };
 
   deleteTransaction = async transactionId => {
-    await TransactionSchema.findByIdAndRemove(transactionId);
+    await TransactionModel.findByIdAndRemove(transactionId);
   };
 }
 
