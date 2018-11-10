@@ -11,7 +11,7 @@ const appRouter = app => {
       const response = await CommerceController.sendTransaction(transaction);
       res.status(200).send(
         `Transaction successful 
-        Transaction Identifier: ${response.data.id}`,
+        Transaction Identifier: ${response.id}`,
       );
     } catch (error) {
       const errorResponse = error.response
@@ -26,6 +26,21 @@ const appRouter = app => {
       const { id } = req.params;
       await CommerceController.deleteTransaction(id);
       res.status(200).send('Your purchase was returned succesfully');
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.put('/Transaction', async (req, res) => {
+    try {
+      const transactionToChargeback = req.body;
+      const response = await CommerceController.chargeback(
+        transactionToChargeback,
+      );
+      res.status(200).send(response);
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data

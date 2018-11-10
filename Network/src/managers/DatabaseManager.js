@@ -25,22 +25,14 @@ class DatabaseManager {
     today,
     threeDaysAgo,
   ) => {
-    let response;
-    await CardDateTransactionsSchema.find(
-      { cardNumber: number },
-      (error, cardDateTransactions) => {
-        if (error) {
-          throw new Error(error);
-        } else {
-          response = cardDateTransactions.filter(
-            cardDateTransaction =>
-              cardDateTransaction.date < today &&
-              cardDateTransaction.date > threeDaysAgo,
-          ).length;
-        }
+    const count = await CardDateTransactionsSchema.count({
+      cardNumber: number,
+      date: {
+        $gt: threeDaysAgo,
+        $lt: today,
       },
-    );
-    return response;
+    }).lean();
+    return count;
   };
 
   sendCardDateTransaction = async cardDateTransaction => {

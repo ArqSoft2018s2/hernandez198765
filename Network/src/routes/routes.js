@@ -11,7 +11,7 @@ const appRouter = app => {
     }
   });
 
-  app.delete('/Transmitter/:transactionId', async (req, res) => {
+  app.delete('/Network/:transactionId', async (req, res) => {
     try {
       const { amount, transactionId } = req.params;
       await NetworkController.returnPurchase(transactionId, amount);

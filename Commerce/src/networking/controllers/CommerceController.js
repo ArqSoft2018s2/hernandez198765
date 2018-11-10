@@ -1,5 +1,4 @@
 import HttpService from '../HttpService';
-import Gateways from '../../helpers/Gateways';
 
 class TransactionController {
   constructor() {
@@ -8,30 +7,45 @@ class TransactionController {
 
   getTransaction = (params = {}) => HttpService.get(this.BASE_API, params);
 
-  getGatewayFromCategory = transaction => {
+  getGatewayFromCategory = async transaction => {
     const {
       product: { category },
     } = transaction;
-    return { ...transaction, gateway: this.findGateway(category) };
+    return { ...transaction, gateway: await this.findGateway(category) };
   };
 
-  findGateway = category => {
-    if (Gateways[category]) {
-      return Gateways[category];
+  findGateway = async category => {
+    const gateways = await this.getGateways();
+    const gatewayIndex = gateways.findIndex(
+      gatewayElement => gatewayElement.category === category,
+    );
+    if (gatewayIndex === -1) {
+      throw new Error('Error: We cant find a gateway to process this product');
     }
-    throw new Error('Error: We cant find a gateway to process this product');
+    return gateways[gatewayIndex].name;
+  };
+
+  getGateways = async () => {
+    try {
+      const uri = '/Gateway';
+      const response = await HttpService.get(uri);
+      return response.data;
+    } catch (error) {
+      const message = error.response ? error.response.data : error.message;
+      throw new Error(message);
+    }
   };
 
   sendTransaction = async newTransaction => {
     try {
-      const transactionWithGateway = this.getGatewayFromCategory(
+      const transactionWithGateway = await this.getGatewayFromCategory(
         newTransaction,
       );
       const response = await HttpService.post(
         this.BASE_API,
         transactionWithGateway,
       );
-      return response;
+      return response.data;
     } catch (error) {
       const message = error.response ? error.response.data : error.message;
       throw new Error(message);
@@ -43,7 +57,14 @@ class TransactionController {
     await HttpService.delete(uri);
   };
 
-  patchTransaction = (uri, body) => HttpService.patch(uri, body);
+  chargeback = async transactionToChargeback => {
+    const uri = `${this.BASE_API}`;
+    const transmitterResponse = await HttpService.put(
+      uri,
+      transactionToChargeback,
+    );
+    return transmitterResponse.data;
+  };
 }
 
 export default new TransactionController();

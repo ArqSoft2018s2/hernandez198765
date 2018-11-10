@@ -10,6 +10,7 @@ class HttpService {
   }
 
   get(url, params = {}) {
+    console.log(this.axios);
     return this.axios.get(url, {
       params,
     });

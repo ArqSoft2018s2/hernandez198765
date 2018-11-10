@@ -16,8 +16,22 @@ class TransmitterController {
     }
   };
 
-  chargeback = async transaction => {
-    await this.updateCardTransactions(transaction);
+  chargebackPurchase = async transaction => {
+    try {
+      const card = await DatabaseManager.findCardByTransactionId(transaction);
+      this.validateChargebackTime(card.date);
+      await this.updateCardTransactions(transaction);
+    } catch (error) {
+      throw new Error(error);
+    }
+  };
+
+  validateChargebackTime = date => {
+    const sixMonthAgo = moment().add(-6, 'months');
+    const transactionTime = moment.unix(date);
+    if (transactionTime.isBefore(sixMonthAgo)) {
+      throw new Error('Time for chargeback exceed');
+    }
   };
 
   addNewTransaction = async transaction => {
@@ -33,15 +47,15 @@ class TransmitterController {
 
   updateCardTransactions = async transaction => {
     try {
-      await DatabaseManager.updateCard(transaction, 'CHARGEBACK');
+      await DatabaseManager.updateCardTransactions(transaction, 'CHARGEBACK');
     } catch (error) {
       throw new Error(error);
     }
   };
 
-  updateCardBalance = async card => {
+  updateCardBalance = async (card, amount) => {
     try {
-      await DatabaseManager.updateCardBalance(card.number, -card.amount);
+      await DatabaseManager.updateCardBalance(card.number, -amount);
     } catch (error) {
       throw new Error(error);
     }
@@ -116,9 +130,11 @@ class TransmitterController {
     return nCheck % 10 === 0;
   };
 
-  returnPurchase = async (transactionId, cardNumber) => {
-    const amount = await DatabaseManager.deleteCardTransactions(transactionId);
-    await DatabaseManager.updateCardBalance(cardNumber, amount);
+  returnPurchase = async transactionId => {
+    const { amount, number } = await DatabaseManager.deleteCardTransactions(
+      transactionId,
+    );
+    await DatabaseManager.updateCardBalance(number, amount);
   };
 }
 

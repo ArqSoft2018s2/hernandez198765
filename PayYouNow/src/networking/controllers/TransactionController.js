@@ -27,7 +27,7 @@ class TransactionController {
         res,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse);
+      await this.rollbackGateway(gatewayResponse.id);
       throw new Error(error.response.data);
     }
 
@@ -37,8 +37,8 @@ class TransactionController {
         res,
       );
     } catch (error) {
-      await this.rollbackGateway(gatewayResponse);
-      await this.rollbackNetwork(networkResponse);
+      await this.rollbackGateway(gatewayResponse.id);
+      await this.rollbackNetwork(networkResponse.id);
       throw new Error(error.response.data);
     }
 
@@ -51,7 +51,7 @@ class TransactionController {
     } catch (error) {
       await this.rollbackGateway(gatewayResponse.id);
       await this.rollbackNetwork(networkResponse.id);
-      await this.rollbackTransmitter(transactionResponse.number);
+      await this.rollbackTransmitter(transactionResponse.id);
       throw new Error(error);
     }
     return transactionResponse;
@@ -92,6 +92,21 @@ class TransactionController {
       );
       await NetworkController.deleteTransaction(transaction.networkId);
       await GatewayController.deleteTransaction(transaction.gatewayId);
+      await DatabaseManager.deleteTransaction(transactionId);
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
+  };
+
+  chargeback = async transactionToChargeback => {
+    try {
+      const transaction = await DatabaseManager.getTransactionFromDatabase(
+        transactionToChargeback,
+      );
+      const response = await TransmitterController.chargeback({
+        transactionId: transaction.transmitterId,
+      });
+      return response;
     } catch (error) {
       throw new Error(error.response.data);
     }
