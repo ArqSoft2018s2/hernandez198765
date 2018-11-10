@@ -51,6 +51,11 @@ class DatabaseManager {
         },
       },
     ]);
+    if (aggregation.length === 0) {
+      throw new Error(
+        'No hay transacciones para el rango de fecha seleccionado',
+      );
+    }
     return aggregation;
   };
 }

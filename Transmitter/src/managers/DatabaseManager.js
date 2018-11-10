@@ -56,7 +56,6 @@ class DatabaseManager {
     const card = await CardModel.findOne({
       'transactions._id': transactionId,
     }).lean();
-    const dsad = 1231;
     return card;
   };
 

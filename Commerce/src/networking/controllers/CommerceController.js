@@ -1,3 +1,4 @@
+import moment from 'moment';
 import HttpService from '../HttpService';
 
 class TransactionController {
@@ -41,10 +42,10 @@ class TransactionController {
       const transactionWithGateway = await this.getGatewayFromCategory(
         newTransaction,
       );
-      const response = await HttpService.post(
-        this.BASE_API,
-        transactionWithGateway,
-      );
+      const response = await HttpService.post(this.BASE_API, {
+        ...transactionWithGateway,
+        date: moment().unix(),
+      });
       return response.data;
     } catch (error) {
       const message = error.response ? error.response.data : error.message;
@@ -64,6 +65,16 @@ class TransactionController {
       transactionToChargeback,
     );
     return transmitterResponse.data;
+  };
+
+  batchClosingTransaction = async (RUT, startDate, endDate) => {
+    const startDateEpoch = moment(startDate).unix();
+    const endDateEpoch = moment(endDate).unix();
+    const uri = `${
+      this.BASE_API
+    }?RUT=${RUT}&startDate=${startDateEpoch}&endDate=${endDateEpoch}`;
+    const response = await HttpService.get(uri);
+    return response.data;
   };
 }
 
