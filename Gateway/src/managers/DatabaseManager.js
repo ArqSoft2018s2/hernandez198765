@@ -32,6 +32,32 @@ class DatabaseManager {
   deleteTransaction = async transactionId => {
     await TransactionSchema.findByIdAndRemove(transactionId);
   };
+
+  batchClosingTransaction = async (RUT, startDate, endDate) => {
+    const aggregation = await TransactionSchema.aggregate([
+      {
+        $match: {
+          RUT,
+          date: {
+            $gt: startDate,
+            $lt: endDate,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$RUT',
+          batchClosing: { $sum: '$amount' },
+        },
+      },
+    ]);
+    if (aggregation.length === 0) {
+      throw new Error(
+        'No hay transacciones para el rango de fecha seleccionado',
+      );
+    }
+    return aggregation;
+  };
 }
 
 export default new DatabaseManager();

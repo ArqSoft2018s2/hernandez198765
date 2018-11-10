@@ -7,7 +7,6 @@ const appRouter = app => {
       const transactionWithCard = await GatewayController.identifyNetwork(
         transaction,
       );
-      console.log('RESPONDIENDO');
       res.status(200).send(transactionWithCard);
     } catch (error) {
       res.status(500).send(error.message);
@@ -19,6 +18,20 @@ const appRouter = app => {
       const { amount, transactionId } = req.params;
       await GatewayController.returnPurchase(transactionId, amount);
       res.status(200).send('Transaction returned');
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
+  app.get('/Gateway', async (req, res) => {
+    try {
+      const { RUT, startDate, endDate } = req.query;
+      const response = await GatewayController.batchClosingTransaction(
+        RUT,
+        startDate,
+        endDate,
+      );
+      res.status(200).send(response);
     } catch (error) {
       res.status(500).send(error.message);
     }

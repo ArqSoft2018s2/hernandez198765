@@ -11,14 +11,14 @@ class GatewayController {
   communicateWithGateway = async req => {
     const gatewayToCommunicate = this.obtainGateway(req.body);
     console.log(gatewayToCommunicate);
-    const url = `${apiConstants.GATEWAY_API}/Gateway`;
-    const gatewayResponse = await HttpService.post(url, req.body);
+    const uri = `${apiConstants.GATEWAY_API}/Gateway`;
+    const gatewayResponse = await HttpService.post(uri, req.body);
     return gatewayResponse.data;
   };
 
   deleteTransaction = async transactionId => {
-    const url = `${apiConstants.GATEWAY_API}/Gateway/${transactionId}`;
-    const gatewayResponse = await HttpService.delete(url);
+    const uri = `${apiConstants.GATEWAY_API}/Gateway/${transactionId}`;
+    const gatewayResponse = await HttpService.delete(uri);
     return gatewayResponse.data;
   };
 
@@ -26,6 +26,14 @@ class GatewayController {
     if (!transaction.gateway) return 'No gateway specified';
     // TODO: go to database and get gateway route, etc..
     return transaction.gateway;
+  };
+
+  batchClosingTransaction = async (RUT, startDate, endDate) => {
+    const uri = `${
+      apiConstants.GATEWAY_API
+    }/Gateway?RUT=${RUT}&startDate=${startDate}&endDate=${endDate}`;
+    const gatewayResponse = await HttpService.get(uri);
+    return gatewayResponse.data;
   };
 }
 

@@ -5,6 +5,23 @@ const appRouter = app => {
     res.status(200).send('Welcome to our restful API');
   });
 
+  app.get('/Transaction', async (req, res) => {
+    try {
+      const { RUT, startDate, endDate } = req.query;
+      const response = await CommerceController.batchClosingTransaction(
+        RUT,
+        startDate,
+        endDate,
+      );
+      res.status(200).send(response);
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
   app.post('/Transaction', async (req, res) => {
     try {
       const { transaction } = req.body;
