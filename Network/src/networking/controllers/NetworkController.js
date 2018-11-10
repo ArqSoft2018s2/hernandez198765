@@ -28,7 +28,7 @@ class NetworkController {
 
     const getAsync = promisify(redisClient.get).bind(redisClient);
     const fraudLimit = await getAsync('fraud_limit');
-    if (quantity + 1 > fraudLimit) {
+    if (quantity + 1 > parseInt(fraudLimit, 10)) {
       throw new Error('Error: fradulent transaction');
     } else {
       const cardDateTransaction = serializer(number, today);
