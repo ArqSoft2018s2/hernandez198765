@@ -111,6 +111,19 @@ class TransactionController {
       throw new Error(error.response.data);
     }
   };
+
+  batchClosingTransaction = async (RUT, startDate, endDate) => {
+    try {
+      const batchClosingTransaction = await GatewayController.batchClosingTransaction(
+        RUT,
+        startDate,
+        endDate,
+      );
+      return batchClosingTransaction;
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
+  };
 }
 
 export default new TransactionController();
