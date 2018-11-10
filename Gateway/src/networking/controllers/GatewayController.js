@@ -43,6 +43,15 @@ class GatewayController {
   returnPurchase = async transactionId => {
     await DatabaseManager.deleteTransaction(transactionId);
   };
+
+  batchClosingTransaction = async (RUT, startDate, endDate) => {
+    const batchClosing = await DatabaseManager.batchClosingTransaction(
+      RUT,
+      startDate,
+      endDate,
+    );
+    return batchClosing;
+  };
 }
 
 export default new GatewayController();
