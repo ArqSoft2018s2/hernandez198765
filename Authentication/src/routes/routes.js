@@ -18,15 +18,17 @@ const appRouter = app => {
     try {
       const { user, password } = req.body;
       await AuthenticationController.register(user, password);
-      res.status(200).send('OK');
+      res.status(200).send('Register success');
     } catch (error) {
       res.status(500).send(error);
     }
   });
 
-  app.post('/Validate', async (req, res) => {
+  app.get('/Validate', async (req, res) => {
     try {
-      res.status(200).send('OK');
+      const token = req.headers['x-access-token'];
+      await AuthenticationController.validate(token);
+      res.status(200).send('Validation successful');
     } catch (error) {
       res.status(500).send(error);
     }
