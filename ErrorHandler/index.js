@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import DatabaseManager from './src/managers/DatabaseManager';
 import routes from './src/routes/routes';
 
 // Environment Variables configuration
@@ -12,10 +11,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 routes(app);
 
-const setupServer = () => {
-  const server = app.listen(8001, () => {
-    console.log('app running on port.', server.address().port);
-  });
-};
-
-DatabaseManager.connect().then(() => setupServer());
+const server = app.listen(8009, () => {
+  console.log('app running on port.', server.address().port);
+});

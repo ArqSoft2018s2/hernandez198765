@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import DatabaseManager from '../../managers/DatabaseManager';
 import serializer from '../../helpers/serializer';
 import deserializer from '../../helpers/deserializer';
+import LoggerController from './LoggerController';
 
 class NetworkController {
   constructor() {
@@ -12,6 +13,7 @@ class NetworkController {
   }
 
   fraudControl = async (transaction, redisClient) => {
+    LoggerController.registerLog('Start Fraud Control');
     const {
       card: { number },
     } = transaction;

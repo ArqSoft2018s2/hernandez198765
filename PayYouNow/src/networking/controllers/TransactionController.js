@@ -2,6 +2,7 @@ import GatewayController from './GatewayController';
 import NetworkController from './NetworkController';
 import TransmitterController from './TransmitterController';
 import DatabaseManager from '../../managers/DatabaseManager';
+import LoggerController from './LoggerController';
 
 class TransactionController {
   constructor() {
@@ -16,39 +17,53 @@ class TransactionController {
     let networkResponse;
     let transmitterResponse;
     let transactionResponse;
-    const gatewayResponse = await GatewayController.communicateWithGateway(
-      req,
-      res,
-    );
+    let gatewayResponse;
 
     try {
+      LoggerController.registerLog('Start communication with Gateway');
+      gatewayResponse = await GatewayController.communicateWithGateway(
+        req,
+        res,
+      );
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
+
+    try {
+      LoggerController.registerLog('Start communication with Network');
       networkResponse = await NetworkController.communicateWithNetwork(
         req,
         res,
       );
     } catch (error) {
+      LoggerController.registerLog('Rollback changes');
       await this.rollbackGateway(gatewayResponse.id);
       throw new Error(error.response.data);
     }
 
     try {
+      LoggerController.registerLog('Start communication with Transmitter');
       transmitterResponse = await TransmitterController.communicateWithTransmitter(
         req,
         res,
       );
     } catch (error) {
+      LoggerController.registerLog('Rollback changes');
       await this.rollbackGateway(gatewayResponse.id);
       await this.rollbackNetwork(networkResponse.id);
       throw new Error(error.response.data);
     }
 
     try {
+      LoggerController.registerLog('Saving Transaction');
       transactionResponse = await DatabaseManager.saveTransaction(
         gatewayResponse,
         networkResponse,
         transmitterResponse,
       );
     } catch (error) {
+      LoggerController.registerError(error);
+      LoggerController.registerLog('Rollback changes');
       await this.rollbackGateway(gatewayResponse.id);
       await this.rollbackNetwork(networkResponse.id);
       await this.rollbackTransmitter(transactionResponse.id);
@@ -83,6 +98,7 @@ class TransactionController {
 
   returnPurchase = async transactionId => {
     try {
+      LoggerController.registerLog('Start return purchase');
       const transaction = await DatabaseManager.getTransactionFromDatabase(
         transactionId,
       );
@@ -100,6 +116,7 @@ class TransactionController {
 
   chargeback = async transactionToChargeback => {
     try {
+      LoggerController.registerLog('Start return purchase');
       const transaction = await DatabaseManager.getTransactionFromDatabase(
         transactionToChargeback,
       );
@@ -114,6 +131,7 @@ class TransactionController {
 
   batchClosingTransaction = async (RUT, startDate, endDate) => {
     try {
+      LoggerController.registerLog('Start batch closing transaction');
       const batchClosingTransaction = await GatewayController.batchClosingTransaction(
         RUT,
         startDate,
