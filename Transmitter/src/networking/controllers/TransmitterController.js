@@ -2,6 +2,7 @@ import moment from 'moment';
 import DatabaseManager from '../../managers/DatabaseManager';
 import cardStatus from '../../helpers/cardStatus';
 import language from '../../localization/en';
+import LoggerController from './LoggerController';
 
 class TransmitterController {
   constructor() {
@@ -18,10 +19,12 @@ class TransmitterController {
 
   chargebackPurchase = async transaction => {
     try {
+      LoggerController.registerLog('Chargeback in progress');
       const card = await DatabaseManager.findCardByTransactionId(transaction);
       this.validateChargebackTime(card.date);
       await this.updateCardTransactions(transaction);
     } catch (error) {
+      LoggerController.error(error);
       throw new Error(error);
     }
   };
@@ -36,25 +39,30 @@ class TransmitterController {
 
   addNewTransaction = async transaction => {
     try {
+      LoggerController.registerLog('Add new transaction to card history');
       const transactionID = await DatabaseManager.addCardTransactions(
         transaction,
       );
       return transactionID;
     } catch (error) {
+      LoggerController.error(error);
       throw new Error(error);
     }
   };
 
   updateCardTransactions = async transaction => {
     try {
+      LoggerController.registerLog('Chargeback in progress');
       await DatabaseManager.updateCardTransactions(transaction, 'CHARGEBACK');
     } catch (error) {
+      LoggerController.registerError(error);
       throw new Error(error);
     }
   };
 
   updateCardBalance = async (card, amount) => {
     try {
+      LoggerController.registerLog('Update card balance');
       await DatabaseManager.updateCardBalance(card.number, -amount);
     } catch (error) {
       throw new Error(error);
@@ -62,6 +70,7 @@ class TransmitterController {
   };
 
   validateCard = async transactionCard => {
+    LoggerController.registerLog('Validating card');
     const response = await DatabaseManager.validateCardIsEmitted(
       transactionCard,
     );
@@ -131,6 +140,7 @@ class TransmitterController {
   };
 
   returnPurchase = async transactionId => {
+    LoggerController.registerLog('Returning purchase');
     const { amount, number } = await DatabaseManager.deleteCardTransactions(
       transactionId,
     );
