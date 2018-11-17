@@ -29,6 +29,11 @@ class DatabaseManager {
     const user = await UserModel.findOne({ username, password });
     return user;
   };
+
+  getUserById = async id => {
+    const user = await UserModel.findById(id);
+    return user;
+  };
 }
 
 export default new DatabaseManager();

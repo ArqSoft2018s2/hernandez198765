@@ -16,13 +16,19 @@ const appRouter = app => {
   app.post('/Transmitter', async (req, res) => {
     try {
       const { card, amount } = req.body;
-      const validationResponse = await TransmitterController.validateCard(card);
+      const validationResponse = await TransmitterController.validateCard(
+        card,
+        amount,
+      );
+      console.log('Validada');
       const transactionId = await TransmitterController.addNewTransaction(
         req.body,
       );
       await TransmitterController.updateCardBalance(card, amount);
+      console.log('Balance mejorado');
       res.status(200).send({ ...validationResponse, id: transactionId });
     } catch (error) {
+      console.log(error);
       res.status(500).send(error.message);
     }
   });

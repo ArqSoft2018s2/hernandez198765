@@ -3,6 +3,7 @@ import DatabaseManager from '../../managers/DatabaseManager';
 import cardStatus from '../../helpers/cardStatus';
 import language from '../../localization/en';
 import LoggerController from './LoggerController';
+import transactionStatus from '../../helpers/transactionStatus';
 
 class TransmitterController {
   constructor() {
@@ -53,7 +54,10 @@ class TransmitterController {
   updateCardTransactions = async transaction => {
     try {
       LoggerController.registerLog('Chargeback in progress');
-      await DatabaseManager.updateCardTransactions(transaction, 'CHARGEBACK');
+      await DatabaseManager.updateCardTransactions(
+        transaction,
+        transactionStatus.CHARGEBACK,
+      );
     } catch (error) {
       LoggerController.registerError(error);
       throw new Error(error);
@@ -69,19 +73,19 @@ class TransmitterController {
     }
   };
 
-  validateCard = async transactionCard => {
+  validateCard = async (cardTransaction, amount) => {
     LoggerController.registerLog('Validating card');
     const response = await DatabaseManager.validateCardIsEmitted(
-      transactionCard,
+      cardTransaction,
     );
-    this.validateAmount(response, transactionCard.amount);
-    this.validateLuhn(transactionCard.number);
-    this.validateExpirationDate(transactionCard.expirationDate);
+    this.validateAmount(response, amount);
+    this.validateLuhn(cardTransaction.number);
+    this.validateExpirationDate(cardTransaction.expirationDate);
     this.validateCardStatus(response.status);
     return {
-      number: transactionCard.number,
+      number: cardTransaction.number,
       data: language.VALID_CARD,
-      amount: transactionCard.amount,
+      amount,
     };
   };
 

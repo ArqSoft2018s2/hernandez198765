@@ -14,12 +14,14 @@ class GatewayController {
     const gatewayToCommunicate = this.obtainGateway(req.body);
     console.log(gatewayToCommunicate);
     const uri = `${apiConstants.GATEWAY_API}/Gateway`;
+    await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.post(uri, req.body);
     return gatewayResponse.data;
   };
 
   deleteTransaction = async transactionId => {
     const uri = `${apiConstants.GATEWAY_API}/Gateway/${transactionId}`;
+    await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.delete(uri);
     return gatewayResponse.data;
   };
@@ -34,6 +36,7 @@ class GatewayController {
     const uri = `${
       apiConstants.GATEWAY_API
     }/Gateway?RUT=${RUT}&startDate=${startDate}&endDate=${endDate}`;
+    await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.get(uri);
     return gatewayResponse.data;
   };
