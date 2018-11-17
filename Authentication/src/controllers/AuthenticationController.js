@@ -1,4 +1,3 @@
-import bycript from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import DatabaseManager from '../managers/DatabaseManager';
@@ -10,8 +9,7 @@ class AuthenticationController {
 
   authenticate = async (username, password) => {
     try {
-      const hashedPassword = bycript.hashSync(password, 8);
-      const user = await DatabaseManager.getUser(username, hashedPassword);
+      const user = await DatabaseManager.getUser(username, password);
       if (!user) {
         throw new Error('Authentication Fail');
       }
@@ -26,8 +24,7 @@ class AuthenticationController {
 
   register = async (username, password) => {
     try {
-      const hashedPassword = bycript.hashSync(password, 8);
-      await DatabaseManager.saveUser(username, hashedPassword);
+      await DatabaseManager.saveUser(username, password);
     } catch (error) {
       throw new Error(error.message);
     }
@@ -35,7 +32,7 @@ class AuthenticationController {
 
   validate = async token => {
     try {
-      const decodedToken = await jwt.verify(token);
+      const decodedToken = await jwt.verify(token, process.env.SECRET);
       const user = await DatabaseManager.getUserById(decodedToken.id);
       if (!user) {
         throw new Error('Operation forbidden permission denied');

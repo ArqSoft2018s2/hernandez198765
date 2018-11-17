@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import CardModel from '../models/CardModel';
+import transactionStatus from '../helpers/transactionStatus';
 
 class DatabaseManager {
   constructor() {
@@ -64,7 +65,7 @@ class DatabaseManager {
     const newTransaction = {
       amount: transaction.amount,
       date: transaction.date,
-      status: 'OK',
+      status: transactionStatus.OK,
     };
     card.transactions.push(newTransaction);
     const newCard = await card.save();
@@ -81,9 +82,10 @@ class DatabaseManager {
   deleteCardTransactions = async transactionId => {
     const card = await CardModel.findOne({ 'transactions._id': transactionId });
     const amount = await card.transactions.id(transactionId).amount;
-    const removed = await card.transactions.id(transactionId).remove();
+    const transaction = await card.transactions.id(transactionId);
+    transaction.status = transactionStatus.DELETED;
     await card.save();
-    return { amount, removed, number: card.number };
+    return { amount, number: card.number };
   };
 
   updateCardBalance = async (transactionId, amount) => {
