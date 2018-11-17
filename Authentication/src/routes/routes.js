@@ -3,9 +3,9 @@ import AuthenticationController from '../controllers/AuthenticationController';
 const appRouter = app => {
   app.post('/Authenticate', async (req, res) => {
     try {
-      const { user, password } = req.body;
+      const { username, password } = req.body;
       const response = await AuthenticationController.authenticate(
-        user,
+        username,
         password,
       );
       res.status(200).send(response);
@@ -16,8 +16,9 @@ const appRouter = app => {
 
   app.post('/Register', async (req, res) => {
     try {
-      const { user, password } = req.body;
-      await AuthenticationController.register(user, password);
+      const { username, password } = req.body;
+      const asas = 1322131;
+      await AuthenticationController.register(username, password);
       res.status(200).send('Register success');
     } catch (error) {
       res.status(500).send(error);

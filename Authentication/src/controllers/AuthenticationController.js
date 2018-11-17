@@ -8,7 +8,7 @@ class AuthenticationController {
     dotenv.config();
   }
 
-  authenticate = (username, password) => {
+  authenticate = async (username, password) => {
     try {
       const hashedPassword = bycript.hashSync(password, 8);
       const user = await DatabaseManager.getUser(username, hashedPassword);
