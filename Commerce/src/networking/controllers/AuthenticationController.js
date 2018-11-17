@@ -1,9 +1,11 @@
 import { promisify } from 'util';
+import dotenv from 'dotenv';
 import AuthenticationService from '../AuthenticationService';
 import RedisManager from '../../managers/RedisManager';
 
 class LoggerController {
   constructor() {
+    dotenv.config();
     this.BASE_API = '/Logger';
   }
 
@@ -18,7 +20,7 @@ class LoggerController {
   authenticate = async body => {
     const response = await AuthenticationService.post('/Authenticate', body);
     const setAsync = promisify(RedisManager.set).bind(RedisManager);
-    await setAsync('tokenCommerce', response.data.id);
+    await setAsync('tokenCommerce', response.data.token);
   };
 }
 

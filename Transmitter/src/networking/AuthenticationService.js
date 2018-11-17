@@ -16,7 +16,7 @@ class AuthenticationService {
   get(url, token) {
     const config = {
       headers: {
-        'x-access-token': token,
+        'x-authorization': token,
       },
     };
     return this.axios.get(url, config);

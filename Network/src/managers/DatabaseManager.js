@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import CardDateTransactionsSchema from '../models/CardDateTransactionsSchema';
+import status from '../helpers/status';
 
 class DatabaseManager {
   constructor() {
@@ -31,6 +32,7 @@ class DatabaseManager {
         $gt: threeDaysAgo,
         $lt: today,
       },
+      status: status.OK,
     }).lean();
     return count;
   };
@@ -39,12 +41,15 @@ class DatabaseManager {
     const newCardDateTransaction = new CardDateTransactionsSchema(
       cardDateTransaction,
     );
+    console.log(newCardDateTransaction);
     const response = await newCardDateTransaction.save();
     return response;
   };
 
   deleteTransaction = async transactionId => {
-    await CardDateTransactionsSchema.findByIdAndRemove(transactionId);
+    await CardDateTransactionsSchema.findByIdAndUpdate(transactionId, {
+      status: status.DELETED,
+    });
   };
 }
 

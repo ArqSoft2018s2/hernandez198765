@@ -6,12 +6,8 @@ import RedisManager from '../managers/RedisManager';
 class HttpService {
   constructor() {
     dotenv.config();
-    const getAsync = promisify(RedisManager.get).bind(RedisManager);
-    const token = getAsync('tokenCommerce');
-    console.log(token);
     this.axios = axios.create({
       baseURL: process.env.PAY_YOU_NOW_API,
-      headers: { 'X-Authorization': token },
     });
   }
 
@@ -36,6 +32,12 @@ class HttpService {
   delete(url) {
     return this.axios.delete(url);
   }
+
+  setDefaultHeaders = async () => {
+    const getAsync = promisify(RedisManager.get).bind(RedisManager);
+    const token = await getAsync('tokenPayYouNow');
+    this.axios.defaults.headers.common['X-Authorization'] = token;
+  };
 }
 
 export default new HttpService();
