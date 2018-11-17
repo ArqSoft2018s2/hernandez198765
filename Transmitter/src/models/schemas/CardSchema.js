@@ -7,6 +7,7 @@ const CardSchema = new mongoose.Schema({
   holderName: String,
   securityCode: String,
   balance: Number,
+  status: String,
   transactions: [TransactionSchema],
 });
 

@@ -6,11 +6,8 @@ import RedisManager from '../managers/RedisManager';
 const { PAY_YOU_NOW_API } = ApiConstants;
 class HttpService {
   constructor() {
-    const getAsync = promisify(RedisManager.get).bind(RedisManager);
-    const token = getAsync('tokenPayYouNow');
     this.axios = axios.create({
       baseURL: PAY_YOU_NOW_API,
-      headers: { 'X-Authorization': token },
     });
   }
 
@@ -35,6 +32,12 @@ class HttpService {
   delete(url) {
     return this.axios.delete(url);
   }
+
+  setDefaultHeaders = async () => {
+    const getAsync = promisify(RedisManager.get).bind(RedisManager);
+    const token = await getAsync('tokenPayYouNow');
+    this.axios.defaults.headers.common['x-authorization'] = token;
+  };
 }
 
 export default new HttpService();

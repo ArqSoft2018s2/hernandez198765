@@ -40,7 +40,6 @@ class TransactionController {
       await this.rollbackGateway(gatewayResponse.id);
       throw new Error(error.response.data);
     }
-
     try {
       LoggerController.registerLog('Start communication with Transmitter');
       transmitterResponse = await TransmitterController.communicateWithTransmitter(
@@ -53,7 +52,6 @@ class TransactionController {
       await this.rollbackNetwork(networkResponse.id);
       throw new Error(error.response.data);
     }
-
     try {
       LoggerController.registerLog('Saving Transaction');
       transactionResponse = await DatabaseManager.saveTransaction(

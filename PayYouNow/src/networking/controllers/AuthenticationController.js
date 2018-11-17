@@ -18,7 +18,7 @@ class LoggerController {
   authenticate = async body => {
     const response = await AuthenticationService.post('/Authenticate', body);
     const setAsync = promisify(RedisManager.set).bind(RedisManager);
-    await setAsync('tokenPayYouNow', response.data.id);
+    await setAsync('tokenPayYouNow', response.data.token);
   };
 
   validate = async token => {

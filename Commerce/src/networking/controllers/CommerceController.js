@@ -28,6 +28,7 @@ class TransactionController {
   getGateways = async () => {
     try {
       const uri = '/Gateway';
+      await HttpService.setDefaultHeaders();
       const response = await HttpService.get(uri);
       return response.data;
     } catch (error) {
@@ -69,6 +70,7 @@ class TransactionController {
         'Start communication with payYouNow to chargeback',
       );
       const uri = `${this.BASE_API}`;
+      await HttpService.setDefaultHeaders();
       const transmitterResponse = await HttpService.put(
         uri,
         transactionToChargeback,
@@ -92,6 +94,7 @@ class TransactionController {
       const uri = `${
         this.BASE_API
       }?RUT=${RUT}&startDate=${startDateEpoch}&endDate=${endDateEpoch}`;
+      await HttpService.setDefaultHeaders();
       const response = await HttpService.get(uri);
       LoggerController.registerLog('End communication with PayYouNow');
       return response.data;
