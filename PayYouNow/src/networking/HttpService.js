@@ -1,11 +1,16 @@
+import { promisify } from 'util';
 import axios from 'axios';
 import ApiConstants from '../helpers/ApiConstants';
+import RedisManager from '../managers/RedisManager';
 
 const { PAY_YOU_NOW_API } = ApiConstants;
 class HttpService {
   constructor() {
+    const getAsync = promisify(RedisManager.get).bind(RedisManager);
+    const token = getAsync('tokenPayYouNow');
     this.axios = axios.create({
       baseURL: PAY_YOU_NOW_API,
+      headers: { 'X-Authorization': token },
     });
   }
 
