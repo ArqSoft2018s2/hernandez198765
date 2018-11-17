@@ -5,6 +5,7 @@ import DatabaseManager from '../../managers/DatabaseManager';
 import serializer from '../../helpers/serializer';
 import deserializer from '../../helpers/deserializer';
 import LoggerController from './LoggerController';
+import RedisManager from '../../managers/RedisManager';
 
 class NetworkController {
   constructor() {
@@ -12,7 +13,7 @@ class NetworkController {
     this.BASE_API = '/Network';
   }
 
-  fraudControl = async (transaction, redisClient) => {
+  fraudControl = async transaction => {
     LoggerController.registerLog('Start Fraud Control');
     const {
       card: { number },
@@ -28,7 +29,7 @@ class NetworkController {
       threeDaysAgo,
     );
 
-    const getAsync = promisify(redisClient.get).bind(redisClient);
+    const getAsync = promisify(RedisManager.get).bind(RedisManager);
     const fraudLimit = await getAsync('fraud_limit');
     if (quantity + 1 > parseInt(fraudLimit, 10)) {
       throw new Error('Error: fradulent transaction');

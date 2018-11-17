@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import UserModel from '../models/userModel';
 
 class DatabaseManager {
   constructor() {
@@ -17,6 +18,16 @@ class DatabaseManager {
     } catch (error) {
       console.log('Cannot connect with Database');
     }
+  };
+
+  saveUser = async (username, password) => {
+    const newUser = new UserModel({ username, password });
+    await newUser.save();
+  };
+
+  getUser = async (username, password) => {
+    const user = await UserModel.findOne({ username, password });
+    return user;
   };
 }
 
