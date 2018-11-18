@@ -1,8 +1,8 @@
-import moment from 'moment';
 import HttpService from '../HttpService';
 import apiConstants from '../../helpers/ApiConstants';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
+import Serializer from '../../helpers/serializer';
 
 class GatewayController {
   getGateways = async () => {
@@ -14,13 +14,16 @@ class GatewayController {
   communicateWithGateway = async req => {
     const gatewayToCommunicate = await this.obtainGateway(req.body, 'post');
     console.log(gatewayToCommunicate);
-    const uri = `${apiConstants.GATEWAY_API}/Gateway`;
+    const uri = `${gatewayToCommunicate.url}/Gateway`;
     await HttpService.setDefaultHeaders();
-    const gatewayResponse = await HttpService.post(uri, req.body);
+    const gatewayResponse = await HttpService.post(
+      uri,
+      gatewayToCommunicate.bodyParams,
+    );
     return gatewayResponse.data;
   };
 
-  deleteTransaction = async transactionId => {
+  deleteTransaction = async (transactionId, url) => {
     const uri = `${apiConstants.GATEWAY_API}/Gateway/${transactionId}`;
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.delete(uri);
@@ -28,11 +31,11 @@ class GatewayController {
   };
 
   obtainGateway = async (transaction, methodType) => {
-    if (!transaction.gateway) {
+    if (!transaction && !transaction.gateway) {
       throw new Error('No gateway specified');
     }
     const gateway = await DatabaseManager.getGatewayByName(transaction.gateway);
-    const requestBody = this.serializeRequestToGateway(
+    const requestBody = Serializer.serializeRequest(
       transaction,
       methodType,
       gateway.methods,
@@ -40,22 +43,7 @@ class GatewayController {
     return { url: gateway.url, bodyParams: requestBody };
   };
 
-  serializeRequestToGateway = (transaction, methodType, methods) => {
-    const params = methods.filter(method => method.name === methodType);
-    const body = {};
-    params.reduce((accum, param) => {
-      if (param.type === 'Date') {
-        return {
-          ...accum,
-          ...moment(transaction[param.name]).format(param.format),
-        };
-      }
-      return { ...accum, ...transaction[param.name] };
-    }, body);
-    console.log(body);
-  };
-
-  batchClosingTransaction = async (RUT, startDate, endDate) => {
+  batchClosingTransaction = async (RUT, startDate, endDate, url) => {
     const uri = `${
       apiConstants.GATEWAY_API
     }/Gateway?RUT=${RUT}&startDate=${startDate}&endDate=${endDate}`;

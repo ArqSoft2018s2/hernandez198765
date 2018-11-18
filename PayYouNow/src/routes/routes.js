@@ -24,13 +24,9 @@ const appRouter = app => {
     }
   });
 
-  app.post('/Transaction', async (req, res, next) => {
+  app.post('/Transaction', async (req, res) => {
     try {
-      const response = await TransactionController.makeCommunications(
-        req,
-        res,
-        next,
-      );
+      const response = await TransactionController.makeCommunications(req, res);
       res.status(200).send(response);
     } catch (error) {
       const errorResponse = error.response
@@ -74,6 +70,19 @@ const appRouter = app => {
       res.status(200).send(response);
     } catch (error) {
       LoggerController.registerError(error);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.post('/Gateway', async (req, res) => {
+    try {
+      const gateway = req.body;
+      await GatewayController.saveGateway(gateway);
+      res.status(200).send(`${gateway.name} registered succesfully`);
+    } catch (error) {
       const errorResponse = error.response
         ? error.response.data
         : error.message;
