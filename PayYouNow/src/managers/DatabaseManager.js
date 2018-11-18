@@ -1,8 +1,10 @@
 import mongoose from 'mongoose';
 import TransactionModel from '../models/transactionModel';
+import GatewayModel from '../models/gatewayModel';
+import TransmitterModel from '../models/transmitterModel';
+import NetworkModel from '../models/networkModel';
 import serializer from '../helpers/serializer';
 import deserializer from '../helpers/deserializer';
-import GatewayModel from '../models/gatewayModel';
 
 class DatabaseManager {
   constructor() {
@@ -43,6 +45,36 @@ class DatabaseManager {
 
   deleteTransaction = async transactionId => {
     await TransactionModel.findByIdAndRemove(transactionId);
+  };
+
+  getGatewayByName = async name => {
+    const gateway = GatewayModel.findOne({ name }).lean();
+    return gateway;
+  };
+
+  saveGateway = async gateway => {
+    const newGateway = new GatewayModel(gateway);
+    await newGateway.save();
+  };
+
+  getTransmitterByName = async name => {
+    const transmitter = TransmitterModel.findOne({ name }).lean();
+    return transmitter;
+  };
+
+  saveTransmitter = async transmitter => {
+    const newTransmitter = new TransmitterModel(transmitter);
+    await newTransmitter.save();
+  };
+
+  getNetworkyByName = async name => {
+    const network = NetworkModel.findOne({ name }).lean();
+    return network;
+  };
+
+  saveNetwork = async network => {
+    const newNetwork = new NetworkModel(network);
+    await newNetwork.save();
   };
 }
 

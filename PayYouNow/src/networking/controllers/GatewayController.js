@@ -1,3 +1,4 @@
+import moment from 'moment';
 import HttpService from '../HttpService';
 import apiConstants from '../../helpers/ApiConstants';
 import DatabaseManager from '../../managers/DatabaseManager';
@@ -11,7 +12,7 @@ class GatewayController {
   };
 
   communicateWithGateway = async req => {
-    const gatewayToCommunicate = this.obtainGateway(req.body);
+    const gatewayToCommunicate = await this.obtainGateway(req.body, 'post');
     console.log(gatewayToCommunicate);
     const uri = `${apiConstants.GATEWAY_API}/Gateway`;
     await HttpService.setDefaultHeaders();
@@ -26,10 +27,32 @@ class GatewayController {
     return gatewayResponse.data;
   };
 
-  obtainGateway = transaction => {
-    if (!transaction.gateway) return 'No gateway specified';
-    // TODO: go to database and get gateway route, etc..
-    return transaction.gateway;
+  obtainGateway = async (transaction, methodType) => {
+    if (!transaction.gateway) {
+      throw new Error('No gateway specified');
+    }
+    const gateway = await DatabaseManager.getGatewayByName(transaction.gateway);
+    const requestBody = this.serializeRequestToGateway(
+      transaction,
+      methodType,
+      gateway.methods,
+    );
+    return { url: gateway.url, bodyParams: requestBody };
+  };
+
+  serializeRequestToGateway = (transaction, methodType, methods) => {
+    const params = methods.filter(method => method.name === methodType);
+    const body = {};
+    params.reduce((accum, param) => {
+      if (param.type === 'Date') {
+        return {
+          ...accum,
+          ...moment(transaction[param.name]).format(param.format),
+        };
+      }
+      return { ...accum, ...transaction[param.name] };
+    }, body);
+    console.log(body);
   };
 
   batchClosingTransaction = async (RUT, startDate, endDate) => {
@@ -39,6 +62,10 @@ class GatewayController {
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.get(uri);
     return gatewayResponse.data;
+  };
+
+  saveGateway = async gateway => {
+    await DatabaseManager.saveGateway(gateway);
   };
 }
 

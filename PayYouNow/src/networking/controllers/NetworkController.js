@@ -1,5 +1,6 @@
 import HttpService from '../HttpService';
 import apiConstants from '../../helpers/ApiConstants';
+import DatabaseManager from '../../managers/DatabaseManager';
 
 class NetworkController {
   communicateWithNetwork = async req => {
@@ -15,6 +16,14 @@ class NetworkController {
     await HttpService.setDefaultHeaders();
     const networkResponse = await HttpService.delete(url);
     return networkResponse.data;
+  };
+
+  obtainNetwork = async networkName => {
+    if (!networkName) {
+      throw new Error('No network specified');
+    }
+    const network = await DatabaseManager.getNetworkByName(networkName);
+    return network.url;
   };
 }
 

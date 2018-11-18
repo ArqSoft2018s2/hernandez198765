@@ -1,5 +1,6 @@
 import HttpService from '../HttpService';
 import apiConstants from '../../helpers/ApiConstants';
+import DatabaseManager from '../../managers/DatabaseManager';
 
 class TransmitterController {
   communicateWithTransmitter = async req => {
@@ -24,6 +25,16 @@ class TransmitterController {
       transactionToChargeback,
     );
     return transmitterResponse.data;
+  };
+
+  obtainTransmitter = async transmitterName => {
+    if (!transmitterName) {
+      throw new Error('No transmitter specified');
+    }
+    const transmitter = await DatabaseManager.getTransmitterByName(
+      transmitterName,
+    );
+    return transmitter.url;
   };
 }
 
