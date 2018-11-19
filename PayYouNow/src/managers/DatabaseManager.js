@@ -3,7 +3,7 @@ import TransactionModel from '../models/transactionModel';
 import GatewayModel from '../models/gatewayModel';
 import TransmitterModel from '../models/transmitterModel';
 import NetworkModel from '../models/networkModel';
-import serializer from '../helpers/serializer';
+import Serializer from '../helpers/serializer';
 import deserializer from '../helpers/deserializer';
 
 class DatabaseManager {
@@ -29,7 +29,11 @@ class DatabaseManager {
   };
 
   saveTransaction = async (gateway, network, transmitter) => {
-    const parsedTransaction = serializer(gateway, network, transmitter);
+    const parsedTransaction = Serializer.serializeTransaction(
+      gateway,
+      network,
+      transmitter,
+    );
     const newTransaction = new TransactionModel(parsedTransaction);
     const response = await newTransaction.save();
     return deserializer(response);
