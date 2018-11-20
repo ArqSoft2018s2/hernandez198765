@@ -1,5 +1,4 @@
 import HttpService from '../HttpService';
-import apiConstants from '../../helpers/ApiConstants';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
 import Serializer from '../../helpers/serializer';
@@ -14,7 +13,9 @@ class GatewayController {
   communicateWithGateway = async req => {
     const gatewayToCommunicate = await this.obtainGateway(req.body, 'post');
     console.log(gatewayToCommunicate);
-    const uri = `${gatewayToCommunicate.url}/Gateway`;
+    const uri = `${gatewayToCommunicate.url}${
+      gatewayToCommunicate.apiResource
+    }`;
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.post(
       uri,
@@ -23,8 +24,11 @@ class GatewayController {
     return gatewayResponse.data;
   };
 
-  deleteTransaction = async (transactionId, url) => {
-    const uri = `${apiConstants.GATEWAY_API}/Gateway/${transactionId}`;
+  deleteTransaction = async params => {
+    const gatewayToCommunicate = this.obtainGateway(params, 'Delete');
+    console.log(gatewayToCommunicate);
+    const { url, apiResource, body } = gatewayToCommunicate;
+    const uri = `${url}/${apiResource}/${body.idTransaction}`;
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.delete(uri);
     return gatewayResponse.data;
@@ -40,13 +44,20 @@ class GatewayController {
       methodType,
       gateway.methods,
     );
-    return { url: gateway.url, bodyParams: requestBody };
+    return {
+      url: gateway.url,
+      body: requestBody.body,
+      apiResource: requestBody.apiResource,
+    };
   };
 
-  batchClosingTransaction = async (RUT, startDate, endDate, url) => {
-    const uri = `${
-      apiConstants.GATEWAY_API
-    }/Gateway?RUT=${RUT}&startDate=${startDate}&endDate=${endDate}`;
+  batchClosingTransaction = async params => {
+    const gatewayToCommunicate = this.obtainGateway(params, 'get');
+    console.log(gatewayToCommunicate);
+    const { url, apiResource, body } = gatewayToCommunicate;
+    const uri = `${url}${apiResource}?RUT=${body.RUT}&startDate=${
+      body.startDate
+    }&endDate=${body.endDate}`;
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.get(uri);
     return gatewayResponse.data;

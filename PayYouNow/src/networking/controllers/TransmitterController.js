@@ -1,40 +1,56 @@
 import HttpService from '../HttpService';
-import apiConstants from '../../helpers/ApiConstants';
 import DatabaseManager from '../../managers/DatabaseManager';
+import Serializer from '../../helpers/serializer';
 
+// TODO: Add logger controller (?);
 class TransmitterController {
   communicateWithTransmitter = async req => {
-    const uri = `${apiConstants.TRANSMITTER_API}/Transmitter`;
+    const transmitterToCommunicate = this.obtainTransmitter(req.body, 'Post');
+    console.log(transmitterToCommunicate);
+    const { url, apiResource, body } = transmitterToCommunicate;
+    const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
-    const transmitterResponse = await HttpService.post(uri, req.body);
+    const transmitterResponse = await HttpService.post(uri, body);
     return transmitterResponse.data;
   };
 
-  deleteTransaction = async transactionId => {
-    const uri = `${apiConstants.TRANSMITTER_API}/Transmitter/${transactionId}`;
+  deleteTransaction = async params => {
+    const transmitterToCommunicate = this.obtainTransmitter(params, 'Delete');
+    console.log(transmitterToCommunicate);
+    const { url, apiResource, body } = transmitterToCommunicate;
+    const uri = `${url}${apiResource}/${body.idTransaction}`;
     await HttpService.setDefaultHeaders();
     const transmitterResponse = await HttpService.delete(uri);
     return transmitterResponse.data;
   };
 
-  chargeback = async transactionToChargeback => {
-    const uri = `${apiConstants.TRANSMITTER_API}/Transmitter`;
+  chargeback = async params => {
+    const transmitterToCommunicate = this.obtainTransmitter(params, 'Put');
+    console.log(transmitterToCommunicate);
+    const { url, apiResource, body } = transmitterToCommunicate;
+    const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
-    const transmitterResponse = await HttpService.put(
-      uri,
-      transactionToChargeback,
-    );
+    const transmitterResponse = await HttpService.put(uri, body);
     return transmitterResponse.data;
   };
 
-  obtainTransmitter = async transmitterName => {
-    if (!transmitterName) {
+  obtainTransmitter = async (transaction, methodType) => {
+    if (!transaction && transaction.transmitter) {
       throw new Error('No transmitter specified');
     }
     const transmitter = await DatabaseManager.getTransmitterByName(
-      transmitterName,
+      transaction.transmitter,
     );
-    return transmitter.url;
+    const requestBody = Serializer.serializeRequest(
+      transaction,
+      methodType,
+      transmitter.methods,
+    );
+    return {
+      url: transmitter.url,
+      body: requestBody.body,
+      apiResource: requestBody.apiResource,
+    };
   };
 }
 

@@ -1,29 +1,44 @@
 import HttpService from '../HttpService';
-import apiConstants from '../../helpers/ApiConstants';
 import DatabaseManager from '../../managers/DatabaseManager';
+import Serializer from '../../helpers/serializer';
 
+// TODO: Add logger controller (?);
 class NetworkController {
   communicateWithNetwork = async req => {
-    const url = `${apiConstants.NETWORK_API}/Network`;
-    const transaction = req.body;
+    const networkToCommunicate = this.obtainNetwork(req.body, 'Post');
+    console.log(networkToCommunicate);
+    const { url, apiResource, body } = networkToCommunicate;
+    const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
-    const networkResponse = await HttpService.post(url, transaction);
+    const networkResponse = await HttpService.post(uri, body);
     return networkResponse.data;
   };
 
-  deleteTransaction = async transactionId => {
-    const url = `${apiConstants.NETWORK_API}/Network/${transactionId}`;
+  deleteTransaction = async params => {
+    const networkToCommunicate = this.obtainNetwork(params, 'Delete');
+    console.log(networkToCommunicate);
+    const { url, apiResource, body } = networkToCommunicate;
+    const uri = `${url}/${apiResource}/${body.idTransaction}`;
     await HttpService.setDefaultHeaders();
-    const networkResponse = await HttpService.delete(url);
+    const networkResponse = await HttpService.delete(uri);
     return networkResponse.data;
   };
 
-  obtainNetwork = async networkName => {
-    if (!networkName) {
+  obtainNetwork = async (transaction, methodType) => {
+    if (!transaction && !transaction.network) {
       throw new Error('No network specified');
     }
-    const network = await DatabaseManager.getNetworkByName(networkName);
-    return network.url;
+    const network = await DatabaseManager.getNetworkByName(transaction.network);
+    const requestBody = Serializer.serializeRequest(
+      transaction,
+      methodType,
+      network.methods,
+    );
+    return {
+      url: network.url,
+      body: requestBody.body,
+      apiResource: requestBody.apiResource,
+    };
   };
 }
 

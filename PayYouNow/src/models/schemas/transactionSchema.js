@@ -1,9 +1,18 @@
 import mongoose from 'mongoose';
 
 const transactionSchema = new mongoose.Schema({
-  gatewayId: String,
-  networkId: String,
-  transmitterId: String,
+  gateway: {
+    idGateway: String,
+    idTransaction: String,
+  },
+  network: {
+    idNetwork: String,
+    idTransaction: String,
+  },
+  transmitter: {
+    idTransmitter: String,
+    idTransaction: String,
+  },
 });
 
 export default transactionSchema;

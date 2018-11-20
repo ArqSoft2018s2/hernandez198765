@@ -2,16 +2,28 @@ import moment from 'moment';
 
 class Serializer {
   serializeTransaction = (gateway, network, transmitter) => ({
-    gatewayId: gateway.id,
-    networkId: network.id,
-    transmitterId: transmitter.id,
+    gateway: {
+      idGateway: gateway.name,
+      url: gateway.url,
+      idTransaction: gateway.idTransaction,
+    },
+    network: {
+      idNetwork: network.name,
+      url: network.url,
+      idTransaction: network.idTransaction,
+    },
+    transmitter: {
+      idTransmitter: transmitter.name,
+      url: transmitter.url,
+      idTransaction: transmitter.idTransaction,
+    },
   });
 
   serializeRequest = (transaction, methodType, methods) => {
     const methodRequested = methods.filter(
       method => method.name.toLowerCase() === methodType,
     );
-    const { params } = methodRequested[0];
+    const { params, apiResource } = methodRequested[0];
     if (params.length !== 0) {
       const body = params.reduce((accum, param) => {
         if (param.type === 'Date') {
@@ -32,9 +44,9 @@ class Serializer {
         accum[param.name] = transaction[param.name];
         return { ...accum };
       }, {});
-      return body;
+      return { body, apiResource };
     }
-    return undefined;
+    return { apiResource };
   };
 }
 

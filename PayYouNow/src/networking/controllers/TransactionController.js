@@ -100,16 +100,38 @@ class TransactionController {
       const transaction = await DatabaseManager.getTransactionFromDatabase(
         transactionId,
       );
-      await TransmitterController.deleteTransaction(
-        transaction.transmitterId,
-        transaction.transmitterTransactionId,
-      );
-      await NetworkController.deleteTransaction(transaction.networkId);
-      await GatewayController.deleteTransaction(transaction.gatewayId);
+      const { gateway, transmitter, network } = transaction;
+      this.returnPurchaseTransmitter(transmitter);
+      this.returnPurchaseNetwork(network);
+      this.returnPurchaseGateway(gateway);
       await DatabaseManager.deleteTransaction(transactionId);
     } catch (error) {
       throw new Error(error.response.data);
     }
+  };
+
+  returnPurchaseTransmitter = async transmitter => {
+    const { idTransmitter, idTransaction } = transmitter;
+    await TransmitterController.deleteTransaction({
+      transmitter: idTransmitter,
+      idTransaction,
+    });
+  };
+
+  returnPurchaseGateway = async gateway => {
+    const { idGateway, idTransaction } = gateway;
+    await GatewayController.deleteTransaction({
+      gateway: idGateway,
+      idTransaction,
+    });
+  };
+
+  returnPurchaseNetwork = async network => {
+    const { idNetwork, idTransaction } = network;
+    await NetworkController.deleteTransaction({
+      network: idNetwork,
+      idTransaction,
+    });
   };
 
   chargeback = async transactionToChargeback => {
@@ -130,11 +152,20 @@ class TransactionController {
   batchClosingTransaction = async (RUT, startDate, endDate) => {
     try {
       LoggerController.registerLog('Start batch closing transaction');
-      const batchClosingTransaction = await GatewayController.batchClosingTransaction(
-        RUT,
-        startDate,
-        endDate,
-      );
+      const transactions = await DatabaseManager.getTransactionsByRUT(RUT);
+      let batchClosingTransaction;
+      transactions.forEach(async transaction => {
+        const { gateway } = transaction;
+        const body = {
+          gateway: gateway.idGateway,
+          RUT,
+          startDate,
+          endDate,
+        };
+        batchClosingTransaction = await GatewayController.batchClosingTransaction(
+          body,
+        );
+      });
       return batchClosingTransaction;
     } catch (error) {
       throw new Error(error.response.data);
