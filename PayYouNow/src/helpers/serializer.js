@@ -1,47 +1,52 @@
 import moment from 'moment';
+import transactionStatus from './transactionStatus';
 
 class Serializer {
-  serializeTransaction = (gateway, network, transmitter) => ({
+  serializeTransaction = (RUT, gateway, network, transmitter) => ({
+    RUT,
     gateway: {
-      idGateway: gateway.name,
-      url: gateway.url,
-      idTransaction: gateway.idTransaction,
+      idGateway: gateway.gateway,
+      idTransaction: gateway.id,
     },
     network: {
-      idNetwork: network.name,
-      url: network.url,
-      idTransaction: network.idTransaction,
+      idNetwork: network.network,
+      idTransaction: network.id,
     },
     transmitter: {
-      idTransmitter: transmitter.name,
-      url: transmitter.url,
-      idTransaction: transmitter.idTransaction,
+      idTransmitter: transmitter.transmitter,
+      idTransaction: transmitter.id,
     },
+    status: transactionStatus.OK,
   });
 
   serializeRequest = (transaction, methodType, methods) => {
     const methodRequested = methods.filter(
-      method => method.name.toLowerCase() === methodType,
+      method => method.name.toLowerCase() === methodType.toLowerCase(),
     );
     const { params, apiResource } = methodRequested[0];
     if (params.length !== 0) {
       const body = params.reduce((accum, param) => {
-        if (param.type === 'Date') {
-          if (param.format === 'epoch') {
+        switch (param.type) {
+          case 'Date':
+            if (param.format.toLowerCase() === 'epoch') {
+              // eslint-disable-next-line no-param-reassign
+              accum[param.name] = transaction[param.name];
+            } else {
+              // eslint-disable-next-line no-param-reassign
+              accum[param.name] = {
+                ...moment(transaction[param.name]).format(param.format),
+              };
+            }
+            break;
+          case 'Object':
             // eslint-disable-next-line no-param-reassign
-            accum[param.name] = { ...moment(transaction[param.name]).unix() };
-          }
-          // eslint-disable-next-line no-param-reassign
-          accum[param.name] = {
-            ...moment(transaction[param.name]).format(param.format),
-          };
+            accum[param.name] = { ...transaction[param.name] };
+            break;
+          default:
+            // eslint-disable-next-line no-param-reassign
+            accum[param.name] = transaction[param.name];
+            break;
         }
-        if (param.type === 'Object') {
-          // eslint-disable-next-line no-param-reassign
-          accum[param.name] = { ...transaction[param.name] };
-        }
-        // eslint-disable-next-line no-param-reassign
-        accum[param.name] = transaction[param.name];
         return { ...accum };
       }, {});
       return { body, apiResource };

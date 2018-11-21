@@ -5,6 +5,7 @@ import TransmitterModel from '../models/transmitterModel';
 import NetworkModel from '../models/networkModel';
 import Serializer from '../helpers/serializer';
 import deserializer from '../helpers/deserializer';
+import transactionStatus from '../helpers/transactionStatus';
 
 class DatabaseManager {
   constructor() {
@@ -28,8 +29,9 @@ class DatabaseManager {
     return response;
   };
 
-  saveTransaction = async (gateway, network, transmitter) => {
+  saveTransaction = async (RUT, gateway, network, transmitter) => {
     const parsedTransaction = Serializer.serializeTransaction(
+      RUT,
       gateway,
       network,
       transmitter,
@@ -37,6 +39,13 @@ class DatabaseManager {
     const newTransaction = new TransactionModel(parsedTransaction);
     const response = await newTransaction.save();
     return deserializer(response);
+  };
+
+  getTransactionsGatewaysByRUT = async () => {
+    const response = await TransactionModel.distinct(
+      'gateway.idGateway',
+    ).lean();
+    return response;
   };
 
   getTransactionFromDatabase = async transactionId => {
@@ -48,7 +57,9 @@ class DatabaseManager {
   };
 
   deleteTransaction = async transactionId => {
-    await TransactionModel.findByIdAndRemove(transactionId);
+    await TransactionModel.findByIdAndUpdate(transactionId, {
+      status: transactionStatus.DELETED,
+    });
   };
 
   getGatewayByName = async name => {
@@ -71,7 +82,7 @@ class DatabaseManager {
     await newTransmitter.save();
   };
 
-  getNetworkyByName = async name => {
+  getNetworkByName = async name => {
     const network = NetworkModel.findOne({ name }).lean();
     return network;
   };

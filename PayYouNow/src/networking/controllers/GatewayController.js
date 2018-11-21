@@ -12,23 +12,17 @@ class GatewayController {
 
   communicateWithGateway = async req => {
     const gatewayToCommunicate = await this.obtainGateway(req.body, 'post');
-    console.log(gatewayToCommunicate);
-    const uri = `${gatewayToCommunicate.url}${
-      gatewayToCommunicate.apiResource
-    }`;
+    const { url, apiResource, body } = gatewayToCommunicate;
+    const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
-    const gatewayResponse = await HttpService.post(
-      uri,
-      gatewayToCommunicate.bodyParams,
-    );
+    const gatewayResponse = await HttpService.post(uri, body);
     return gatewayResponse.data;
   };
 
   deleteTransaction = async params => {
-    const gatewayToCommunicate = this.obtainGateway(params, 'Delete');
-    console.log(gatewayToCommunicate);
+    const gatewayToCommunicate = await this.obtainGateway(params, 'Delete');
     const { url, apiResource, body } = gatewayToCommunicate;
-    const uri = `${url}/${apiResource}/${body.idTransaction}`;
+    const uri = `${url}${apiResource}/${body.id}`;
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.delete(uri);
     return gatewayResponse.data;
@@ -52,8 +46,7 @@ class GatewayController {
   };
 
   batchClosingTransaction = async params => {
-    const gatewayToCommunicate = this.obtainGateway(params, 'get');
-    console.log(gatewayToCommunicate);
+    const gatewayToCommunicate = await this.obtainGateway(params, 'get');
     const { url, apiResource, body } = gatewayToCommunicate;
     const uri = `${url}${apiResource}?RUT=${body.RUT}&startDate=${
       body.startDate

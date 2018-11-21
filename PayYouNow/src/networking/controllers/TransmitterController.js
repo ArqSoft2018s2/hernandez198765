@@ -5,8 +5,10 @@ import Serializer from '../../helpers/serializer';
 // TODO: Add logger controller (?);
 class TransmitterController {
   communicateWithTransmitter = async req => {
-    const transmitterToCommunicate = this.obtainTransmitter(req.body, 'Post');
-    console.log(transmitterToCommunicate);
+    const transmitterToCommunicate = await this.obtainTransmitter(
+      req.body,
+      'Post',
+    );
     const { url, apiResource, body } = transmitterToCommunicate;
     const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
@@ -15,18 +17,22 @@ class TransmitterController {
   };
 
   deleteTransaction = async params => {
-    const transmitterToCommunicate = this.obtainTransmitter(params, 'Delete');
-    console.log(transmitterToCommunicate);
+    const transmitterToCommunicate = await this.obtainTransmitter(
+      params,
+      'Delete',
+    );
     const { url, apiResource, body } = transmitterToCommunicate;
-    const uri = `${url}${apiResource}/${body.idTransaction}`;
+    const uri = `${url}${apiResource}/${body.id}`;
     await HttpService.setDefaultHeaders();
     const transmitterResponse = await HttpService.delete(uri);
     return transmitterResponse.data;
   };
 
   chargeback = async params => {
-    const transmitterToCommunicate = this.obtainTransmitter(params, 'Put');
-    console.log(transmitterToCommunicate);
+    const transmitterToCommunicate = await this.obtainTransmitter(
+      params,
+      'Put',
+    );
     const { url, apiResource, body } = transmitterToCommunicate;
     const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
@@ -51,6 +57,10 @@ class TransmitterController {
       body: requestBody.body,
       apiResource: requestBody.apiResource,
     };
+  };
+
+  saveTransmitter = async transmitter => {
+    await DatabaseManager.saveTransmitter(transmitter);
   };
 }
 

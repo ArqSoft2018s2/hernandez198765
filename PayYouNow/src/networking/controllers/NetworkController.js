@@ -2,11 +2,9 @@ import HttpService from '../HttpService';
 import DatabaseManager from '../../managers/DatabaseManager';
 import Serializer from '../../helpers/serializer';
 
-// TODO: Add logger controller (?);
 class NetworkController {
   communicateWithNetwork = async req => {
-    const networkToCommunicate = this.obtainNetwork(req.body, 'Post');
-    console.log(networkToCommunicate);
+    const networkToCommunicate = await this.obtainNetwork(req.body, 'Post');
     const { url, apiResource, body } = networkToCommunicate;
     const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
@@ -15,10 +13,9 @@ class NetworkController {
   };
 
   deleteTransaction = async params => {
-    const networkToCommunicate = this.obtainNetwork(params, 'Delete');
-    console.log(networkToCommunicate);
+    const networkToCommunicate = await this.obtainNetwork(params, 'Delete');
     const { url, apiResource, body } = networkToCommunicate;
-    const uri = `${url}/${apiResource}/${body.idTransaction}`;
+    const uri = `${url}${apiResource}/${body.id}`;
     await HttpService.setDefaultHeaders();
     const networkResponse = await HttpService.delete(uri);
     return networkResponse.data;
@@ -39,6 +36,10 @@ class NetworkController {
       body: requestBody.body,
       apiResource: requestBody.apiResource,
     };
+  };
+
+  saveNetwork = async network => {
+    await DatabaseManager.saveNetwork(network);
   };
 }
 

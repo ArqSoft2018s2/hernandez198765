@@ -15,6 +15,7 @@ const appRouter = app => {
       );
       res.status(200).send(response);
     } catch (error) {
+      console.log(error);
       const errorResponse = error.response
         ? error.response.data
         : error.message;
