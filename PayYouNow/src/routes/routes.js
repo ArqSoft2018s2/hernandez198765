@@ -1,6 +1,8 @@
 import TransactionController from '../networking/controllers/TransactionController';
 import GatewayController from '../networking/controllers/GatewayController';
 import LoggerController from '../networking/controllers/LoggerController';
+import NetworkController from '../networking/controllers/NetworkController';
+import TransmitterController from '../networking/controllers/TransmitterController';
 
 const appRouter = app => {
   app.get('/', (req, res) => {
@@ -24,13 +26,9 @@ const appRouter = app => {
     }
   });
 
-  app.post('/Transaction', async (req, res, next) => {
+  app.post('/Transaction', async (req, res) => {
     try {
-      const response = await TransactionController.makeCommunications(
-        req,
-        res,
-        next,
-      );
+      const response = await TransactionController.makeCommunications(req, res);
       res.status(200).send(response);
     } catch (error) {
       const errorResponse = error.response
@@ -74,6 +72,45 @@ const appRouter = app => {
       res.status(200).send(response);
     } catch (error) {
       LoggerController.registerError(error);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.post('/Gateway', async (req, res) => {
+    try {
+      const gateway = req.body;
+      await GatewayController.saveGateway(gateway);
+      res.status(200).send(`${gateway.name} registered succesfully`);
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.post('/Network', async (req, res) => {
+    try {
+      const network = req.body;
+      await NetworkController.saveNetwork(network);
+      res.status(200).send(`Network registered succesfully`);
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.post('/Transmitter', async (req, res) => {
+    try {
+      const transmitter = req.body;
+      await TransmitterController.saveTransmitter(transmitter);
+      res.status(200).send(`Transmitter registered succesfully`);
+    } catch (error) {
       const errorResponse = error.response
         ? error.response.data
         : error.message;

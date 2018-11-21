@@ -1,20 +1,45 @@
 import HttpService from '../HttpService';
-import apiConstants from '../../helpers/ApiConstants';
+import DatabaseManager from '../../managers/DatabaseManager';
+import Serializer from '../../helpers/serializer';
 
 class NetworkController {
   communicateWithNetwork = async req => {
-    const url = `${apiConstants.NETWORK_API}/Network`;
-    const transaction = req.body;
+    const networkToCommunicate = await this.obtainNetwork(req.body, 'Post');
+    const { url, apiResource, body } = networkToCommunicate;
+    const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
-    const networkResponse = await HttpService.post(url, transaction);
+    const networkResponse = await HttpService.post(uri, body);
     return networkResponse.data;
   };
 
-  deleteTransaction = async transactionId => {
-    const url = `${apiConstants.NETWORK_API}/Network/${transactionId}`;
+  deleteTransaction = async params => {
+    const networkToCommunicate = await this.obtainNetwork(params, 'Delete');
+    const { url, apiResource, body } = networkToCommunicate;
+    const uri = `${url}${apiResource}/${body.id}`;
     await HttpService.setDefaultHeaders();
-    const networkResponse = await HttpService.delete(url);
+    const networkResponse = await HttpService.delete(uri);
     return networkResponse.data;
+  };
+
+  obtainNetwork = async (transaction, methodType) => {
+    if (!transaction && !transaction.network) {
+      throw new Error('No network specified');
+    }
+    const network = await DatabaseManager.getNetworkByName(transaction.network);
+    const requestBody = Serializer.serializeRequest(
+      transaction,
+      methodType,
+      network.methods,
+    );
+    return {
+      url: network.url,
+      body: requestBody.body,
+      apiResource: requestBody.apiResource,
+    };
+  };
+
+  saveNetwork = async network => {
+    await DatabaseManager.saveNetwork(network);
   };
 }
 

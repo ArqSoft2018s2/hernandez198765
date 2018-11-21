@@ -1,7 +1,7 @@
 import HttpService from '../HttpService';
-import apiConstants from '../../helpers/ApiConstants';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
+import Serializer from '../../helpers/serializer';
 
 class GatewayController {
   getGateways = async () => {
@@ -11,34 +11,53 @@ class GatewayController {
   };
 
   communicateWithGateway = async req => {
-    const gatewayToCommunicate = this.obtainGateway(req.body);
-    console.log(gatewayToCommunicate);
-    const uri = `${apiConstants.GATEWAY_API}/Gateway`;
+    const gatewayToCommunicate = await this.obtainGateway(req.body, 'post');
+    const { url, apiResource, body } = gatewayToCommunicate;
+    const uri = `${url}${apiResource}`;
     await HttpService.setDefaultHeaders();
-    const gatewayResponse = await HttpService.post(uri, req.body);
+    const gatewayResponse = await HttpService.post(uri, body);
     return gatewayResponse.data;
   };
 
-  deleteTransaction = async transactionId => {
-    const uri = `${apiConstants.GATEWAY_API}/Gateway/${transactionId}`;
+  deleteTransaction = async params => {
+    const gatewayToCommunicate = await this.obtainGateway(params, 'Delete');
+    const { url, apiResource, body } = gatewayToCommunicate;
+    const uri = `${url}${apiResource}/${body.id}`;
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.delete(uri);
     return gatewayResponse.data;
   };
 
-  obtainGateway = transaction => {
-    if (!transaction.gateway) return 'No gateway specified';
-    // TODO: go to database and get gateway route, etc..
-    return transaction.gateway;
+  obtainGateway = async (transaction, methodType) => {
+    if (!transaction && !transaction.gateway) {
+      throw new Error('No gateway specified');
+    }
+    const gateway = await DatabaseManager.getGatewayByName(transaction.gateway);
+    const requestBody = Serializer.serializeRequest(
+      transaction,
+      methodType,
+      gateway.methods,
+    );
+    return {
+      url: gateway.url,
+      body: requestBody.body,
+      apiResource: requestBody.apiResource,
+    };
   };
 
-  batchClosingTransaction = async (RUT, startDate, endDate) => {
-    const uri = `${
-      apiConstants.GATEWAY_API
-    }/Gateway?RUT=${RUT}&startDate=${startDate}&endDate=${endDate}`;
+  batchClosingTransaction = async params => {
+    const gatewayToCommunicate = await this.obtainGateway(params, 'get');
+    const { url, apiResource, body } = gatewayToCommunicate;
+    const uri = `${url}${apiResource}?RUT=${body.RUT}&startDate=${
+      body.startDate
+    }&endDate=${body.endDate}`;
     await HttpService.setDefaultHeaders();
     const gatewayResponse = await HttpService.get(uri);
     return gatewayResponse.data;
+  };
+
+  saveGateway = async gateway => {
+    await DatabaseManager.saveGateway(gateway);
   };
 }
 

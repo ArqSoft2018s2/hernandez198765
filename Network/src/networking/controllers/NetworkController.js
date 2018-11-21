@@ -1,11 +1,14 @@
 import dotenv from 'dotenv';
 import moment from 'moment';
 import { promisify } from 'util';
+
 import DatabaseManager from '../../managers/DatabaseManager';
-import serializer from '../../helpers/serializer';
-import deserializer from '../../helpers/deserializer';
 import LoggerController from './LoggerController';
 import RedisManager from '../../managers/RedisManager';
+
+import CreditCards from '../../helpers/CreditCards';
+import serializer from '../../helpers/serializer';
+import deserializer from '../../helpers/deserializer';
 
 class NetworkController {
   constructor() {
@@ -38,8 +41,28 @@ class NetworkController {
       const response = await DatabaseManager.sendCardDateTransaction(
         cardDateTransaction,
       );
-      return deserializer(response);
+      const transmitter = this.getTransmitterFromCreditCard(transaction);
+      return deserializer(response, transmitter);
     }
+  };
+
+  getTransmitterFromCreditCard = transaction => {
+    const {
+      card: { number },
+    } = transaction;
+    if (CreditCards.visaRegEx.test(number)) {
+      return 'Visa';
+    }
+    if (CreditCards.mastercardRegEx.test(number)) {
+      return 'MasterCard';
+    }
+    if (CreditCards.discovRegEx.test(number)) {
+      return 'Discover';
+    }
+    if (CreditCards.amexpRegEx.test(number)) {
+      return 'Amex';
+    }
+    throw new Error('Invalid Credit Card');
   };
 
   returnPurchase = async transactionId => {

@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
 import TransactionModel from '../models/transactionModel';
-import serializer from '../helpers/serializer';
-import deserializer from '../helpers/deserializer';
 import GatewayModel from '../models/gatewayModel';
+import TransmitterModel from '../models/transmitterModel';
+import NetworkModel from '../models/networkModel';
+import Serializer from '../helpers/serializer';
+import deserializer from '../helpers/deserializer';
+import transactionStatus from '../helpers/transactionStatus';
 
 class DatabaseManager {
   constructor() {
@@ -26,11 +29,23 @@ class DatabaseManager {
     return response;
   };
 
-  saveTransaction = async (gateway, network, transmitter) => {
-    const parsedTransaction = serializer(gateway, network, transmitter);
+  saveTransaction = async (RUT, gateway, network, transmitter) => {
+    const parsedTransaction = Serializer.serializeTransaction(
+      RUT,
+      gateway,
+      network,
+      transmitter,
+    );
     const newTransaction = new TransactionModel(parsedTransaction);
     const response = await newTransaction.save();
     return deserializer(response);
+  };
+
+  getTransactionsGatewaysByRUT = async () => {
+    const response = await TransactionModel.distinct(
+      'gateway.idGateway',
+    ).lean();
+    return response;
   };
 
   getTransactionFromDatabase = async transactionId => {
@@ -42,7 +57,39 @@ class DatabaseManager {
   };
 
   deleteTransaction = async transactionId => {
-    await TransactionModel.findByIdAndRemove(transactionId);
+    await TransactionModel.findByIdAndUpdate(transactionId, {
+      status: transactionStatus.DELETED,
+    });
+  };
+
+  getGatewayByName = async name => {
+    const gateway = GatewayModel.findOne({ name }).lean();
+    return gateway;
+  };
+
+  saveGateway = async gateway => {
+    const newGateway = new GatewayModel(gateway);
+    await newGateway.save();
+  };
+
+  getTransmitterByName = async name => {
+    const transmitter = TransmitterModel.findOne({ name }).lean();
+    return transmitter;
+  };
+
+  saveTransmitter = async transmitter => {
+    const newTransmitter = new TransmitterModel(transmitter);
+    await newTransmitter.save();
+  };
+
+  getNetworkByName = async name => {
+    const network = NetworkModel.findOne({ name }).lean();
+    return network;
+  };
+
+  saveNetwork = async network => {
+    const newNetwork = new NetworkModel(network);
+    await newNetwork.save();
   };
 }
 

@@ -20,7 +20,6 @@ const appRouter = app => {
         card,
         amount,
       );
-      console.log('Validada');
       const transactionId = await TransmitterController.addNewTransaction(
         req.body,
       );
@@ -45,8 +44,8 @@ const appRouter = app => {
 
   app.put('/Transmitter', async (req, res) => {
     try {
-      const { transactionId } = req.body;
-      await TransmitterController.chargebackPurchase(transactionId);
+      const { id } = req.body;
+      await TransmitterController.chargebackPurchase(id);
       res.status(200).send('Chargeback succesfull');
     } catch (error) {
       res.status(500).send(error.message);
