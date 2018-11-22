@@ -3,79 +3,86 @@ import NetworkController from './NetworkController';
 import TransmitterController from './TransmitterController';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
+import Deserializer from '../../helpers/Deserializer';
 
 class TransactionController {
   constructor() {
     this.paymentResponse = `Commerce starts communication`;
   }
 
-  makeTransaction = async (req, res) => {
-    await this.makeCommunications(req, res);
-  };
-
-  makeCommunications = async (req, res) => {
-    let networkResponse;
-    let transmitterResponse;
-    let transactionResponse;
-    let gatewayResponse;
-
+  initialCommunications = async (req, res) => {
     try {
       LoggerController.registerLog('Start communication with Gateway');
-      gatewayResponse = await GatewayController.communicateWithGateway(
+      const { gateway, RUT } = req.body;
+      const transactionCommunications = await this.communicateWithGateway(
         req,
         res,
       );
+      const deserializerResponse = Deserializer.deserializeResponse({
+        ...transactionCommunications,
+        gateway,
+        RUT,
+      });
+      console.log(deserializerResponse);
+      const transactionResponse = await this.saveTransactionInPayYouNow(
+        deserializerResponse,
+      );
+      return transactionResponse;
     } catch (error) {
       throw new Error(error.response.data);
     }
-    gatewayResponse = { ...gatewayResponse, gateway: req.body.gateway };
-    req.body = { ...req.body, network: gatewayResponse.network };
+  };
+
+  saveTransactionInPayYouNow = async transactionCommunications => {
+    const { gateway, network, transmitter, RUT } = transactionCommunications;
+    LoggerController.registerLog('Saving Transaction');
+    const transactionResponse = await DatabaseManager.saveTransaction(
+      RUT,
+      gateway,
+      network,
+      transmitter,
+    );
+    return transactionResponse;
+  };
+
+  communicateWithGateway = async (req, res) => {
+    try {
+      LoggerController.registerLog('Start communication with Gateway');
+      const transactionCommunications = await GatewayController.communicateWithGateway(
+        req,
+        res,
+      );
+      return transactionCommunications;
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
+  };
+
+  communicateWithNetwork = async (req, res) => {
     try {
       LoggerController.registerLog('Start communication with Network');
-      networkResponse = await NetworkController.communicateWithNetwork(
+      const networkResponse = await NetworkController.communicateWithNetwork(
         req,
         res,
       );
+      return networkResponse;
     } catch (error) {
-      LoggerController.registerLog('Rollback changes');
-      await this.rollbackGateway(gatewayResponse.id);
       throw new Error(error.response.data);
     }
-    networkResponse = { ...networkResponse, network: req.body.network };
-    req.body = { ...req.body, transmitter: networkResponse.transmitter };
+  };
+
+  communicateWithTransmitter = async (req, res) => {
     try {
       LoggerController.registerLog('Start communication with Transmitter');
-      transmitterResponse = await TransmitterController.communicateWithTransmitter(
+      console.log('ACA MARICA');
+      const transmitterResponse = await TransmitterController.communicateWithTransmitter(
         req,
         res,
       );
+      return transmitterResponse;
     } catch (error) {
-      LoggerController.registerLog('Rollback changes');
-      await this.rollbackGateway(gatewayResponse.id);
-      await this.rollbackNetwork(networkResponse.id);
       throw new Error(error.response.data);
     }
-    transmitterResponse = {
-      ...transmitterResponse,
-      transmitter: networkResponse.transmitter,
-    };
-    try {
-      LoggerController.registerLog('Saving Transaction');
-      transactionResponse = await DatabaseManager.saveTransaction(
-        req.body.RUT,
-        gatewayResponse,
-        networkResponse,
-        transmitterResponse,
-      );
-    } catch (error) {
-      LoggerController.registerError(error);
-      LoggerController.registerLog('Rollback changes');
-      await this.rollbackGateway(gatewayResponse.id);
-      await this.rollbackNetwork(networkResponse.id);
-      await this.rollbackTransmitter(transactionResponse.id);
-      throw new Error(error);
-    }
-    return transactionResponse;
   };
 
   rollbackGateway = async gatewayResponse => {

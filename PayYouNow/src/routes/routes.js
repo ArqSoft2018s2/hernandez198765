@@ -5,10 +5,6 @@ import NetworkController from '../networking/controllers/NetworkController';
 import TransmitterController from '../networking/controllers/TransmitterController';
 
 const appRouter = app => {
-  app.get('/', (req, res) => {
-    res.status(200).send('Welcome to our restful API');
-  });
-
   app.get('/Transaction', async (req, res) => {
     try {
       const { RUT, startDate, endDate } = req.query;
@@ -28,7 +24,42 @@ const appRouter = app => {
 
   app.post('/Transaction', async (req, res) => {
     try {
-      const response = await TransactionController.makeCommunications(req, res);
+      const response = await TransactionController.initialCommunications(
+        req,
+        res,
+      );
+      res.status(200).send(response);
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.post('/Transaction/Network', async (req, res) => {
+    try {
+      console.log('Vamos hacia network');
+      const response = await TransactionController.communicateWithNetwork(
+        req,
+        res,
+      );
+      res.status(200).send(response);
+    } catch (error) {
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
+    }
+  });
+
+  app.post('/Transaction/Transmitter', async (req, res) => {
+    try {
+      console.log('Vamos hacia transmitter');
+      const response = await TransactionController.communicateWithTransmitter(
+        req,
+        res,
+      );
       res.status(200).send(response);
     } catch (error) {
       const errorResponse = error.response

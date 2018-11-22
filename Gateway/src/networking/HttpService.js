@@ -1,5 +1,7 @@
+import { promisify } from 'util';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import RedisManager from '../managers/RedisManager';
 
 class HttpService {
   constructor() {
@@ -16,6 +18,7 @@ class HttpService {
   }
 
   post(url, body) {
+    console.log('ACA PUTO');
     return this.axios.post(url, body);
   }
 
@@ -30,6 +33,12 @@ class HttpService {
   delete(url) {
     return this.axios.delete(url);
   }
+
+  setDefaultHeaders = async () => {
+    const getAsync = promisify(RedisManager.get).bind(RedisManager);
+    const token = await getAsync('tokenPayYouNow');
+    this.axios.defaults.headers.common['X-Authorization'] = token;
+  };
 }
 
 export default new HttpService();

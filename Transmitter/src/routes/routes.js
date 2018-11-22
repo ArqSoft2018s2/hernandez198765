@@ -11,11 +11,11 @@ const appRouter = app => {
     }
   });
 
-  // TODO: Change about keeping the card number, we can find the balance only with the transaction id.
-  // need to test it.
   app.post('/Transmitter', async (req, res) => {
     try {
+      console.log('ACA MASCON');
       const { card, amount } = req.body;
+      const asda = 123;
       const validationResponse = await TransmitterController.validateCard(
         card,
         amount,
@@ -25,7 +25,9 @@ const appRouter = app => {
       );
       await TransmitterController.updateCardBalance(card, amount);
       console.log('Balance mejorado');
-      res.status(200).send({ ...validationResponse, id: transactionId });
+      res
+        .status(200)
+        .send({ ...validationResponse, transmitterId: transactionId });
     } catch (error) {
       console.log(error);
       res.status(500).send(error.message);
