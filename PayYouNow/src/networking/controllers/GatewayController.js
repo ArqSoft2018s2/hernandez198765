@@ -1,7 +1,7 @@
 import HttpService from '../HttpService';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
-import Serializer from '../../helpers/serializer';
+import Serializer from '../../helpers/Serializer';
 
 class GatewayController {
   getGateways = async () => {

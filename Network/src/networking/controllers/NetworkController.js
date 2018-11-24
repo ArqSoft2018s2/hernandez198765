@@ -5,6 +5,7 @@ import { promisify } from 'util';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
 import RedisManager from '../../managers/RedisManager';
+import HttpService from '../HttpService';
 
 import CreditCards from '../../helpers/CreditCards';
 import serializer from '../../helpers/serializer';
@@ -13,7 +14,7 @@ import deserializer from '../../helpers/deserializer';
 class NetworkController {
   constructor() {
     dotenv.config();
-    this.BASE_API = '/Network';
+    this.BASE_API = '/Transaction/Transmitter';
   }
 
   fraudControl = async transaction => {
@@ -37,13 +38,26 @@ class NetworkController {
     if (quantity + 1 > parseInt(fraudLimit, 10)) {
       throw new Error('Error: fradulent transaction');
     } else {
+      const transmitter = this.getTransmitterFromCreditCard(transaction);
+      const transmitterResponse = await this.goToTransmitter({
+        ...transaction,
+        transmitter,
+      });
+      console.log(transmitterResponse);
       const cardDateTransaction = serializer(number, today);
       const response = await DatabaseManager.sendCardDateTransaction(
         cardDateTransaction,
       );
-      const transmitter = this.getTransmitterFromCreditCard(transaction);
-      return deserializer(response, transmitter);
+
+      return deserializer(response, transmitterResponse, transmitter);
     }
+  };
+
+  goToTransmitter = async transaction => {
+    const uri = `${this.BASE_API}`;
+    await HttpService.setDefaultHeaders();
+    const transmitterResponse = await HttpService.post(uri, transaction);
+    return transmitterResponse.data;
   };
 
   getTransmitterFromCreditCard = transaction => {
