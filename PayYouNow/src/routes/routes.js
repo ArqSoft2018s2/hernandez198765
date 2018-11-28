@@ -39,7 +39,6 @@ const appRouter = app => {
 
   app.post('/Transaction/Network', async (req, res) => {
     try {
-      console.log('Vamos hacia network');
       const response = await TransactionController.communicateWithNetwork(
         req,
         res,
@@ -55,7 +54,6 @@ const appRouter = app => {
 
   app.post('/Transaction/Transmitter', async (req, res) => {
     try {
-      console.log('Vamos hacia transmitter');
       const response = await TransactionController.communicateWithTransmitter(
         req,
         res,

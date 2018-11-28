@@ -18,7 +18,6 @@ class HttpService {
   }
 
   post(url, body) {
-    console.log('ACA PUTO');
     return this.axios.post(url, body);
   }
 

@@ -74,7 +74,6 @@ class TransactionController {
   communicateWithTransmitter = async (req, res) => {
     try {
       LoggerController.registerLog('Start communication with Transmitter');
-      console.log('ACA MARICA');
       const transmitterResponse = await TransmitterController.communicateWithTransmitter(
         req,
         res,

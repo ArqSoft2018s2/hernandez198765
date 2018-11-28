@@ -43,7 +43,6 @@ class NetworkController {
         ...transaction,
         transmitter,
       });
-      console.log(transmitterResponse);
       const cardDateTransaction = serializer(number, today);
       const response = await DatabaseManager.sendCardDateTransaction(
         cardDateTransaction,
