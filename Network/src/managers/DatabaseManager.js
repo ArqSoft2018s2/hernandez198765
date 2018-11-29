@@ -41,7 +41,6 @@ class DatabaseManager {
     const newCardDateTransaction = new CardDateTransactionsSchema(
       cardDateTransaction,
     );
-    console.log(newCardDateTransaction);
     const response = await newCardDateTransaction.save();
     return response;
   };

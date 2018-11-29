@@ -7,7 +7,10 @@ const appRouter = app => {
       const response = await NetworkController.fraudControl(transaction);
       res.status(200).send({ ...response, aprobada: 'aprobada' });
     } catch (error) {
-      res.status(500).send(error.message);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
     }
   });
 
@@ -17,7 +20,10 @@ const appRouter = app => {
       await NetworkController.returnPurchase(transactionId, amount);
       res.status(200).send('Transaction returned');
     } catch (error) {
-      res.status(500).send(error.message);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
     }
   });
 };

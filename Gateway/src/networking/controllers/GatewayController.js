@@ -26,31 +26,26 @@ class GatewayController {
     if (CreditCards.amexpRegEx.test(number)) {
       return 'Amex';
     }
-    throw new Error('Invalid Credit Card');
+    throw new Error('Error: Invalid Credit Card');
   };
 
   identifyNetwork = async transaction => {
-    try {
-      LoggerController.registerLog('Identifing Network');
-      const network = this.getNetworkFromCreditCard(transaction);
+    LoggerController.registerLog('Identifing Network');
+    const network = this.getNetworkFromCreditCard(transaction);
 
-      const networkResponse = await this.goToNetwork({
-        ...transaction,
-        network,
-      });
+    const networkResponse = await this.goToNetwork({
+      ...transaction,
+      network,
+    });
 
-      const databaseIDTransaction = await DatabaseManager.saveTransaction(
-        transaction,
-      );
-      return {
-        ...networkResponse,
-        gatewayId: databaseIDTransaction.id,
-        network,
-      };
-    } catch (error) {
-      LoggerController.registerError(error);
-      throw new Error(error);
-    }
+    const databaseIDTransaction = await DatabaseManager.saveTransaction(
+      transaction,
+    );
+    return {
+      ...networkResponse,
+      gatewayId: databaseIDTransaction.id,
+      network,
+    };
   };
 
   goToNetwork = async transaction => {

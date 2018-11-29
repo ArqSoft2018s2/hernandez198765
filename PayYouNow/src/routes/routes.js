@@ -39,7 +39,6 @@ const appRouter = app => {
 
   app.post('/Transaction/Network', async (req, res) => {
     try {
-      console.log('Vamos hacia network');
       const response = await TransactionController.communicateWithNetwork(
         req,
         res,
@@ -55,7 +54,6 @@ const appRouter = app => {
 
   app.post('/Transaction/Transmitter', async (req, res) => {
     try {
-      console.log('Vamos hacia transmitter');
       const response = await TransactionController.communicateWithTransmitter(
         req,
         res,
@@ -118,7 +116,7 @@ const appRouter = app => {
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data
-        : error.message;
+        : 'Error: Cant register gateway';
       res.status(500).send(errorResponse);
     }
   });
@@ -131,7 +129,7 @@ const appRouter = app => {
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data
-        : error.message;
+        : 'Error: Cant register network';
       res.status(500).send(errorResponse);
     }
   });
@@ -144,7 +142,7 @@ const appRouter = app => {
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data
-        : error.message;
+        : 'Error: cant register transmitter';
       res.status(500).send(errorResponse);
     }
   });

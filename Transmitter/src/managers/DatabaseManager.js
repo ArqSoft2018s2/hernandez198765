@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
+import { promisify } from 'util';
+import moment from 'moment';
 import CardModel from '../models/CardModel';
 import transactionStatus from '../helpers/transactionStatus';
+import RedisManager from './RedisManager';
 
 class DatabaseManager {
   constructor() {
@@ -79,10 +82,22 @@ class DatabaseManager {
     await card.save();
   };
 
+  validatePurchaseTime = (date, limitDate) => {
+    const transactionTime = moment(date);
+    const limitDatePurchase = moment().add(limitDate, 'months');
+    if (transactionTime.isBefore(limitDatePurchase)) {
+      throw new Error('Error: Time for purchase exceed');
+    }
+  };
+
   deleteCardTransactions = async transactionId => {
     const card = await CardModel.findOne({ 'transactions._id': transactionId });
-    const amount = await card.transactions.id(transactionId).amount;
     const transaction = await card.transactions.id(transactionId);
+    const getAsync = promisify(RedisManager.get).bind(RedisManager);
+    const limitDate = await getAsync('limit_date_purchase');
+    const limitDateNumber = -parseInt(limitDate, 10);
+    this.validatePurchaseTime(transaction.date, limitDateNumber);
+    const { amount } = transaction;
     transaction.status = transactionStatus.DELETED;
     await card.save();
     return { amount, number: card.number };

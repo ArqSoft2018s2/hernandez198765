@@ -26,37 +26,25 @@ class TransactionController {
   };
 
   getGateways = async () => {
-    try {
-      const uri = '/Gateway';
-      await HttpService.setDefaultHeaders();
-      const response = await HttpService.get(uri);
-      return response.data;
-    } catch (error) {
-      LoggerController.registerError(error);
-      const message = error.response ? error.response.data : error.message;
-      throw new Error(message);
-    }
+    const uri = '/Gateway';
+    await HttpService.setDefaultHeaders();
+    const response = await HttpService.get(uri);
+    return response.data;
   };
 
   sendTransaction = async newTransaction => {
-    try {
-      LoggerController.registerLog(
-        'Start communication with payYouNow to send transaction',
-      );
-      const transactionWithGateway = await this.getGatewayFromCategory(
-        newTransaction,
-      );
-      const response = await HttpService.post(this.BASE_API, {
-        ...transactionWithGateway,
-        date: moment().unix(),
-      });
-      LoggerController.registerLog('End communication with PayYouNow');
-      return response.data;
-    } catch (error) {
-      LoggerController.registerError(error);
-      const message = error.response ? error.response.data : error.message;
-      throw new Error(message);
-    }
+    LoggerController.registerLog(
+      'Start communication with payYouNow to send transaction',
+    );
+    const transactionWithGateway = await this.getGatewayFromCategory(
+      newTransaction,
+    );
+    const response = await HttpService.post(this.BASE_API, {
+      ...transactionWithGateway,
+      date: moment().unix(),
+    });
+    LoggerController.registerLog('End communication with PayYouNow');
+    return response.data;
   };
 
   deleteTransaction = async transactionId => {
@@ -65,44 +53,33 @@ class TransactionController {
   };
 
   chargeback = async transactionToChargeback => {
-    try {
-      LoggerController.registerLog(
-        'Start communication with payYouNow to chargeback',
-      );
-      const uri = `${this.BASE_API}`;
-      await HttpService.setDefaultHeaders();
-      const transmitterResponse = await HttpService.put(
-        uri,
-        transactionToChargeback,
-      );
-      LoggerController.registerLog('End communication with PayYouNow');
-      return transmitterResponse.data;
-    } catch (error) {
-      LoggerController.registerError(error);
-      const message = error.response ? error.response.data : error.message;
-      throw new Error(message);
-    }
+    LoggerController.registerLog(
+      'Start communication with payYouNow to chargeback',
+    );
+    const uri = `${this.BASE_API}`;
+    await HttpService.setDefaultHeaders();
+    const transmitterResponse = await HttpService.put(
+      uri,
+      transactionToChargeback,
+    );
+    LoggerController.registerLog('End communication with PayYouNow');
+    return transmitterResponse.data;
   };
 
   batchClosingTransaction = async (RUT, startDate, endDate) => {
-    try {
-      LoggerController.registerLog(
-        'Start communication with payYouNow for batchClosingTransaction',
-      );
-      const startDateEpoch = moment(startDate).unix();
-      const endDateEpoch = moment(endDate).unix();
-      const uri = `${
-        this.BASE_API
-      }?RUT=${RUT}&startDate=${startDateEpoch}&endDate=${endDateEpoch}`;
-      await HttpService.setDefaultHeaders();
-      const response = await HttpService.get(uri);
-      LoggerController.registerLog('End communication with PayYouNow');
-      return response.data;
-    } catch (error) {
-      LoggerController.registerError(error);
-      const message = error.response ? error.response.data : error.message;
-      throw new Error(message);
-    }
+    LoggerController.registerLog(
+      'Start communication with payYouNow for batchClosingTransaction',
+    );
+    // this.validateDates()
+    // const startDateEpoch = moment(startDate).unix();
+    // const endDateEpoch = moment(endDate).unix();
+    const uri = `${
+      this.BASE_API
+    }?RUT=${RUT}&startDate=${startDate}&endDate=${endDate}`;
+    await HttpService.setDefaultHeaders();
+    const response = await HttpService.get(uri);
+    LoggerController.registerLog('End communication with PayYouNow');
+    return response.data;
   };
 }
 
