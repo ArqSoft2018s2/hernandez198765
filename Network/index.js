@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
+import AuthenticationController from './src/networking/controllers/AuthenticationController';
 import DatabaseManager from './src/managers/DatabaseManager';
 import routes from './src/routes/routes';
 import authentication from './src/middlewares/authenticationMiddleware';
@@ -21,4 +22,16 @@ const setupServer = () => {
   });
 };
 
-DatabaseManager.connect().then(() => setupServer());
+DatabaseManager.connect().then(async () => {
+  setupServer();
+  const body = {
+    username: process.env.APP_NAME,
+    password: process.env.APP_PASSWORD,
+  };
+  try {
+    await AuthenticationController.register(body);
+    await AuthenticationController.authenticate(body);
+  } catch (error) {
+    await AuthenticationController.authenticate(body);
+  }
+});

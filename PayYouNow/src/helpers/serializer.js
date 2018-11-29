@@ -5,16 +5,16 @@ class Serializer {
   serializeTransaction = (RUT, gateway, network, transmitter) => ({
     RUT,
     gateway: {
-      idGateway: gateway.gateway,
-      idTransaction: gateway.id,
+      idGateway: gateway.idGateway,
+      idTransaction: gateway.idTransaction,
     },
     network: {
-      idNetwork: network.network,
-      idTransaction: network.id,
+      idNetwork: network.idNetwork,
+      idTransaction: network.idTransaction,
     },
     transmitter: {
-      idTransmitter: transmitter.transmitter,
-      idTransaction: transmitter.id,
+      idTransmitter: transmitter.idTransmitter,
+      idTransaction: transmitter.idTransaction,
     },
     status: transactionStatus.OK,
   });
@@ -30,7 +30,7 @@ class Serializer {
           case 'Date':
             if (param.format.toLowerCase() === 'epoch') {
               // eslint-disable-next-line no-param-reassign
-              accum[param.name] = transaction[param.name];
+              accum[param.name] = moment(transaction[param.name]).unix();
             } else {
               // eslint-disable-next-line no-param-reassign
               accum[param.name] = {

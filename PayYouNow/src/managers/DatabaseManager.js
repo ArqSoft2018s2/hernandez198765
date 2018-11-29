@@ -3,8 +3,8 @@ import TransactionModel from '../models/transactionModel';
 import GatewayModel from '../models/gatewayModel';
 import TransmitterModel from '../models/transmitterModel';
 import NetworkModel from '../models/networkModel';
-import Serializer from '../helpers/serializer';
-import deserializer from '../helpers/deserializer';
+import Serializer from '../helpers/Serializer';
+import Deserializer from '../helpers/Deserializer';
 import transactionStatus from '../helpers/transactionStatus';
 
 class DatabaseManager {
@@ -38,13 +38,14 @@ class DatabaseManager {
     );
     const newTransaction = new TransactionModel(parsedTransaction);
     const response = await newTransaction.save();
-    return deserializer(response);
+    return Deserializer.deserializerDb(response);
   };
 
-  getTransactionsGatewaysByRUT = async () => {
-    const response = await TransactionModel.distinct(
-      'gateway.idGateway',
-    ).lean();
+  getTransactionsGatewaysByRUT = async RUT => {
+    const response = await TransactionModel.distinct('gateway.idGateway', {
+      RUT,
+    }).lean();
+    console.log(response);
     return response;
   };
 

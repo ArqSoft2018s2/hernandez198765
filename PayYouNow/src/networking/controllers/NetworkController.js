@@ -1,6 +1,6 @@
 import HttpService from '../HttpService';
 import DatabaseManager from '../../managers/DatabaseManager';
-import Serializer from '../../helpers/serializer';
+import Serializer from '../../helpers/Serializer';
 
 class NetworkController {
   communicateWithNetwork = async req => {

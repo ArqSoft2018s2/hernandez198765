@@ -1,8 +1,7 @@
 import HttpService from '../HttpService';
 import DatabaseManager from '../../managers/DatabaseManager';
-import Serializer from '../../helpers/serializer';
+import Serializer from '../../helpers/Serializer';
 
-// TODO: Add logger controller (?);
 class TransmitterController {
   communicateWithTransmitter = async req => {
     const transmitterToCommunicate = await this.obtainTransmitter(

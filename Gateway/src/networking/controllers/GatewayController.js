@@ -1,10 +1,13 @@
+import dotenv from 'dotenv';
 import CreditCards from '../../helpers/CreditCards';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
+import HttpService from '../HttpService';
 
 class GatewayController {
   constructor() {
-    this.BASE_API = '/Gateway';
+    dotenv.config();
+    this.BASE_API = '/Transaction/Network';
   }
 
   getNetworkFromCreditCard = transaction => {
@@ -23,24 +26,33 @@ class GatewayController {
     if (CreditCards.amexpRegEx.test(number)) {
       return 'Amex';
     }
-    throw new Error('Invalid Credit Card');
+    throw new Error('Error: Invalid Credit Card');
   };
 
   identifyNetwork = async transaction => {
-    try {
-      LoggerController.registerLog('Identifing Network');
-      const network = this.getNetworkFromCreditCard(transaction);
-      const databaseIDTransaction = await DatabaseManager.saveTransaction(
-        transaction,
-      );
-      return {
-        ...databaseIDTransaction,
-        network,
-      };
-    } catch (error) {
-      LoggerController.registerError(error);
-      throw new Error(error);
-    }
+    LoggerController.registerLog('Identifing Network');
+    const network = this.getNetworkFromCreditCard(transaction);
+
+    const networkResponse = await this.goToNetwork({
+      ...transaction,
+      network,
+    });
+
+    const databaseIDTransaction = await DatabaseManager.saveTransaction(
+      transaction,
+    );
+    return {
+      ...networkResponse,
+      gatewayId: databaseIDTransaction.id,
+      network,
+    };
+  };
+
+  goToNetwork = async transaction => {
+    const uri = `${this.BASE_API}`;
+    await HttpService.setDefaultHeaders();
+    const networkResponse = await HttpService.post(uri, transaction);
+    return networkResponse.data;
   };
 
   returnPurchase = async transactionId => {

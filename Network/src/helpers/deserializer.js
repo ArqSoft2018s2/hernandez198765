@@ -1,5 +1,6 @@
-const deserializer = (response, transmitter) => ({
-  id: response.id,
+const deserializer = (response, transmitterResponse, transmitter) => ({
+  networkId: response.id,
+  ...transmitterResponse,
   transmitter,
 });
 

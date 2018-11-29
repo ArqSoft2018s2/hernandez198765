@@ -3,143 +3,129 @@ import NetworkController from './NetworkController';
 import TransmitterController from './TransmitterController';
 import DatabaseManager from '../../managers/DatabaseManager';
 import LoggerController from './LoggerController';
+import Deserializer from '../../helpers/Deserializer';
+import Utils from '../../helpers/Utils';
 
 class TransactionController {
   constructor() {
     this.paymentResponse = `Commerce starts communication`;
   }
 
-  makeTransaction = async (req, res) => {
-    await this.makeCommunications(req, res);
-  };
-
-  makeCommunications = async (req, res) => {
-    let networkResponse;
-    let transmitterResponse;
-    let transactionResponse;
-    let gatewayResponse;
-
-    try {
-      LoggerController.registerLog('Start communication with Gateway');
-      gatewayResponse = await GatewayController.communicateWithGateway(
-        req,
-        res,
-      );
-    } catch (error) {
-      throw new Error(error.response.data);
-    }
-    gatewayResponse = { ...gatewayResponse, gateway: req.body.gateway };
-    req.body = { ...req.body, network: gatewayResponse.network };
-    try {
-      LoggerController.registerLog('Start communication with Network');
-      networkResponse = await NetworkController.communicateWithNetwork(
-        req,
-        res,
-      );
-    } catch (error) {
-      LoggerController.registerLog('Rollback changes');
-      await this.rollbackGateway(gatewayResponse.id);
-      throw new Error(error.response.data);
-    }
-    networkResponse = { ...networkResponse, network: req.body.network };
-    req.body = { ...req.body, transmitter: networkResponse.transmitter };
-    try {
-      LoggerController.registerLog('Start communication with Transmitter');
-      transmitterResponse = await TransmitterController.communicateWithTransmitter(
-        req,
-        res,
-      );
-    } catch (error) {
-      LoggerController.registerLog('Rollback changes');
-      await this.rollbackGateway(gatewayResponse.id);
-      await this.rollbackNetwork(networkResponse.id);
-      throw new Error(error.response.data);
-    }
-    transmitterResponse = {
-      ...transmitterResponse,
-      transmitter: networkResponse.transmitter,
-    };
-    try {
-      LoggerController.registerLog('Saving Transaction');
-      transactionResponse = await DatabaseManager.saveTransaction(
-        req.body.RUT,
-        gatewayResponse,
-        networkResponse,
-        transmitterResponse,
-      );
-    } catch (error) {
-      LoggerController.registerError(error);
-      LoggerController.registerLog('Rollback changes');
-      await this.rollbackGateway(gatewayResponse.id);
-      await this.rollbackNetwork(networkResponse.id);
-      await this.rollbackTransmitter(transactionResponse.id);
-      throw new Error(error);
-    }
+  initialCommunications = async (req, res) => {
+    LoggerController.registerLog('Start communication with Gateway');
+    const { gateway, RUT } = req.body;
+    const transactionCommunications = await this.communicateWithGateway(
+      req,
+      res,
+    );
+    const deserializerResponse = Deserializer.deserializeResponse({
+      ...transactionCommunications,
+      gateway,
+      RUT,
+    });
+    const transactionResponse = await this.saveTransactionInPayYouNow(
+      deserializerResponse,
+    );
     return transactionResponse;
   };
 
-  rollbackGateway = async gatewayResponse => {
+  saveTransactionInPayYouNow = async transactionCommunications => {
+    const { gateway, network, transmitter, RUT } = transactionCommunications;
+    LoggerController.registerLog('Saving Transaction');
+    const transactionResponse = await DatabaseManager.saveTransaction(
+      RUT,
+      gateway,
+      network,
+      transmitter,
+    );
+    return transactionResponse;
+  };
+
+  communicateWithGateway = async (req, res) => {
     try {
-      await GatewayController.deleteTransaction(gatewayResponse);
+      LoggerController.registerLog('Start communication with Gateway');
+      const transactionCommunications = await GatewayController.communicateWithGateway(
+        req,
+        res,
+      );
+      return transactionCommunications;
     } catch (error) {
       throw new Error(error.response.data);
     }
   };
 
-  rollbackNetwork = async networkResponse => {
+  communicateWithNetwork = async (req, res) => {
     try {
-      await NetworkController.deleteTransaction(networkResponse);
+      LoggerController.registerLog('Start communication with Network');
+      const networkResponse = await NetworkController.communicateWithNetwork(
+        req,
+        res,
+      );
+      return networkResponse;
     } catch (error) {
       throw new Error(error.response.data);
     }
   };
 
-  rollbackTransmitter = async transmitterResponse => {
+  communicateWithTransmitter = async (req, res) => {
     try {
-      await TransmitterController.deleteTransaction(transmitterResponse);
+      LoggerController.registerLog('Start communication with Transmitter');
+      const transmitterResponse = await TransmitterController.communicateWithTransmitter(
+        req,
+        res,
+      );
+      return transmitterResponse;
     } catch (error) {
       throw new Error(error.response.data);
     }
   };
 
   returnPurchase = async transactionId => {
+    LoggerController.registerLog('Start return purchase');
+    const transaction = await DatabaseManager.getTransactionFromDatabase(
+      transactionId,
+    );
+    const { gateway, transmitter, network } = transaction;
+    await this.returnPurchaseTransmitter(transmitter);
+    await this.returnPurchaseNetwork(network);
+    await this.returnPurchaseGateway(gateway);
+    await DatabaseManager.deleteTransaction(transactionId);
+  };
+
+  returnPurchaseTransmitter = async transmitter => {
     try {
-      LoggerController.registerLog('Start return purchase');
-      const transaction = await DatabaseManager.getTransactionFromDatabase(
-        transactionId,
-      );
-      const { gateway, transmitter, network } = transaction;
-      await this.returnPurchaseTransmitter(transmitter);
-      await this.returnPurchaseNetwork(network);
-      await this.returnPurchaseGateway(gateway);
-      await DatabaseManager.deleteTransaction(transactionId);
+      const { idTransmitter, idTransaction } = transmitter;
+      await TransmitterController.deleteTransaction({
+        transmitter: idTransmitter,
+        id: idTransaction,
+      });
     } catch (error) {
       throw new Error(error.response.data);
     }
   };
 
-  returnPurchaseTransmitter = async transmitter => {
-    const { idTransmitter, idTransaction } = transmitter;
-    await TransmitterController.deleteTransaction({
-      transmitter: idTransmitter,
-      id: idTransaction,
-    });
-  };
-
   returnPurchaseGateway = async gateway => {
-    const { idGateway, idTransaction } = gateway;
-    await GatewayController.deleteTransaction({
-      gateway: idGateway,
-      id: idTransaction,
-    });
+    try {
+      const { idGateway, idTransaction } = gateway;
+      await GatewayController.deleteTransaction({
+        gateway: idGateway,
+        id: idTransaction,
+      });
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
   };
 
   returnPurchaseNetwork = async network => {
-    const { idNetwork, idTransaction } = network;
-    await NetworkController.deleteTransaction({
-      network: idNetwork,
-      id: idTransaction,
-    });
+    try {
+      const { idNetwork, idTransaction } = network;
+      await NetworkController.deleteTransaction({
+        network: idNetwork,
+        id: idTransaction,
+      });
+    } catch (error) {
+      throw new Error(error.response.data);
+    }
   };
 
   chargeback = async transactionToChargeback => {
@@ -157,11 +143,15 @@ class TransactionController {
       });
       return response;
     } catch (error) {
-      throw new Error(error);
+      const errorResponse = error.response
+        ? error.response.data
+        : `Error: Invalid purchase, your purchase doesn't exists`;
+      throw new Error(errorResponse);
     }
   };
 
   batchClosingTransaction = async (RUT, startDate, endDate) => {
+    Utils.validateDates(startDate, endDate);
     try {
       LoggerController.registerLog('Start batch closing transaction');
       const transactionsGateways = await DatabaseManager.getTransactionsGatewaysByRUT(
@@ -184,7 +174,10 @@ class TransactionController {
       );
       return `El cierre de lotes: ${batchClosingTransaction}`;
     } catch (error) {
-      throw new Error(error);
+      const errorResponse = error.response
+        ? error.response.data
+        : `Error: Invalid RUT, your RUT doesn't exists`;
+      throw new Error(errorResponse);
     }
   };
 }
