@@ -5,6 +5,7 @@ const en = {
     'Error: Past due credit card, request a new one with your provider',
   INSUFICIENT_FOUNDS: 'Error: Insuficient founds',
   INVALID_CREDIT_CARD: 'Error: Invalid credit card',
+  INVALID_AMOUNT: 'Error: amount must be a valid number',
 };
 
 export default en;

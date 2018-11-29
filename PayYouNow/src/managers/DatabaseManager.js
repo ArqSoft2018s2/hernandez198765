@@ -41,10 +41,11 @@ class DatabaseManager {
     return Deserializer.deserializerDb(response);
   };
 
-  getTransactionsGatewaysByRUT = async () => {
-    const response = await TransactionModel.distinct(
-      'gateway.idGateway',
-    ).lean();
+  getTransactionsGatewaysByRUT = async RUT => {
+    const response = await TransactionModel.distinct('gateway.idGateway', {
+      RUT,
+    }).lean();
+    console.log(response);
     return response;
   };
 

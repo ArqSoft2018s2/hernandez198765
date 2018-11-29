@@ -116,7 +116,7 @@ const appRouter = app => {
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data
-        : error.message;
+        : 'Error: Cant register gateway';
       res.status(500).send(errorResponse);
     }
   });
@@ -129,7 +129,7 @@ const appRouter = app => {
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data
-        : error.message;
+        : 'Error: Cant register network';
       res.status(500).send(errorResponse);
     }
   });
@@ -142,7 +142,7 @@ const appRouter = app => {
     } catch (error) {
       const errorResponse = error.response
         ? error.response.data
-        : error.message;
+        : 'Error: cant register transmitter';
       res.status(500).send(errorResponse);
     }
   });

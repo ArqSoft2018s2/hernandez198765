@@ -30,7 +30,7 @@ class Serializer {
           case 'Date':
             if (param.format.toLowerCase() === 'epoch') {
               // eslint-disable-next-line no-param-reassign
-              accum[param.name] = transaction[param.name];
+              accum[param.name] = moment(transaction[param.name]).unix();
             } else {
               // eslint-disable-next-line no-param-reassign
               accum[param.name] = {

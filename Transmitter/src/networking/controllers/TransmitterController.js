@@ -25,7 +25,7 @@ class TransmitterController {
       this.validateChargebackTime(card.date);
       await this.updateCardTransactions(transaction);
     } catch (error) {
-      LoggerController.error(error);
+      LoggerController.registerError(error);
       throw new Error(error);
     }
   };
@@ -41,12 +41,14 @@ class TransmitterController {
   addNewTransaction = async transaction => {
     try {
       LoggerController.registerLog('Add new transaction to card history');
-      const transactionID = await DatabaseManager.addCardTransactions(
-        transaction,
-      );
+      const transactionID = await DatabaseManager.addCardTransactions({
+        date: moment().unix(),
+        amount: parseInt(transaction.amount, 10),
+        card: transaction.card,
+      });
       return transactionID;
     } catch (error) {
-      LoggerController.error(error);
+      LoggerController.registerError(error);
       throw new Error(error);
     }
   };
@@ -109,6 +111,9 @@ class TransmitterController {
   };
 
   validateAmount = (card, amount) => {
+    if (amount < 0) {
+      throw new Error(language.INVALID_AMOUNT);
+    }
     if (card.balance < amount) {
       throw new Error(language.INSUFICIENT_FOUNDS);
     }

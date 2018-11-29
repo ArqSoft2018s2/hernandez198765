@@ -9,7 +9,10 @@ const appRouter = app => {
       );
       res.status(200).send(transactionWithCard);
     } catch (error) {
-      res.status(500).send(error.message);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
     }
   });
 
@@ -19,7 +22,10 @@ const appRouter = app => {
       await GatewayController.returnPurchase(transactionId, amount);
       res.status(200).send('Transaction returned');
     } catch (error) {
-      res.status(500).send(error.message);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
     }
   });
 
@@ -33,7 +39,10 @@ const appRouter = app => {
       );
       res.status(200).send(response);
     } catch (error) {
-      res.status(500).send(error.message);
+      const errorResponse = error.response
+        ? error.response.data
+        : error.message;
+      res.status(500).send(errorResponse);
     }
   });
 };
